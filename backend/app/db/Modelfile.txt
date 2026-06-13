@@ -1,0 +1,5 @@
+FROM ./gemma-3-4b-it-Q4_K_M.gguf
+
+# (Tùy chọn) Bạn có thể cấu hình luôn nhiệt độ (temperature) tại đây để model luôn trả lời nghiêm túc, không bịa luật
+PARAMETER temperature 0.1
+PARAMETER num_ctx 4096

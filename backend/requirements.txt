@@ -1,0 +1,39 @@
+# Web Framework & Server
+fastapi==0.109.0
+uvicorn==0.27.0
+python-multipart
+python-dotenv
+
+# Database (SQL Server) - Cần thiết cho pyodbc và SQLAlchemy
+pyodbc
+sqlalchemy
+# Thư viện hỗ trợ parse URL kết nối
+urllib3
+
+# Xử lý văn bản
+PyPDF2
+python-docx
+pdfplumber
+
+# AI & Embedding
+google-generativeai
+sentence-transformers
+openai
+
+# FAISS dùng để lưu trữ và tìm kiếm Vector
+faiss-cpu
+
+# Rank_BM25 dùng cho Keyword Search trong Hybrid Search
+rank_bm25
+
+# Tách từ tiếng Việt cho BM25 (ViTokenizer)
+pyvi
+
+# Công cụ hỗ trợ & Tính toán
+numpy
+pandas
+openpyxl
+tqdm
+
+# Thư viện đánh giá (Semantic Similarity)
+scikit-learn

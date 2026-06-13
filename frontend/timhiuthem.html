@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html class="light" lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Khám phá Công nghệ | ChatBot AI Luật Hôn Nhân</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#002045",
+                        "primary-container": "#1a365d",
+                        "secondary": "#48626e",
+                        "secondary-container": "#cbe7f5",
+                        "surface": "#f8f9fa",
+                        "surface-container-low": "#f3f4f5",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-surface": "#191c1d",
+                        "on-surface-variant": "#43474e",
+                        "outline-variant": "#c4c6cf",
+                    },
+                    fontFamily: {
+                        sans: ['Be Vietnam Pro', 'sans-serif'],
+                    }
+                }
+            }
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+    // Lấy tất cả các section có id và các link trong menu
+    const sections = document.querySelectorAll("section[id]");
+    const navLinks = document.querySelectorAll(".nav-item");
+
+    // Các class dùng cho trạng thái Bình thường và Active
+    const normalClasses = ['text-on-surface-variant', 'font-semibold', 'text-sm'];
+    const activeClasses = ['text-primary', 'font-bold', 'border-b-2', 'border-primary', 'pb-1'];
+
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.4 // Kích hoạt khi 40% section lọt vào khung hình
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const currentId = entry.target.getAttribute('id');
+                
+                navLinks.forEach(link => {
+                    // Xóa trạng thái active của tất cả các link
+                    activeClasses.forEach(cls => link.classList.remove(cls));
+                    normalClasses.forEach(cls => link.classList.add(cls));
+
+                    // Nếu href của link khớp với id của section đang hiện trên màn hình thì active nó
+                    if (link.getAttribute('href') === `#${currentId}`) {
+                        normalClasses.forEach(cls => link.classList.remove(cls));
+                        activeClasses.forEach(cls => link.classList.add(cls));
+                    }
+                });
+            }
+        });
+    }, observerOptions);
+
+    // Bắt đầu theo dõi tất cả các section
+    sections.forEach(section => {
+        observer.observe(section);
+    });
+});
+    </script>
+    <style>
+        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: #f8f9fa; color: #191c1d; }
+        .glass-nav { background: rgba(248, 249, 250, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .primary-gradient { background: linear-gradient(135deg, #002045 0%, #1a365d 100%); }
+        .ambient-shadow { box-shadow: 0 20px 40px rgba(0, 32, 69, 0.06); }
+        .ghost-border { border: 1px solid rgba(196, 198, 207, 0.15); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-secondary-container">
+
+    <header class="w-full top-0 fixed z-50 glass-nav border-b ghost-border">
+        <nav class="flex justify-between items-center px-8 py-5 max-w-[1400px] mx-auto">
+            <a href="trangchu.html" class="inline-block hover:opacity-80 transition-opacity">
+                <div class="text-[1.125rem] font-extrabold tracking-tight text-primary leading-none mb-1">ChatBot AI</div>
+                <div class="text-[9px] text-on-surface-variant uppercase tracking-[0.2em] font-bold">Luật Hôn Nhân và Gia Đình</div>
+            </a>
+            
+            <div class="hidden md:flex items-center gap-10" id="nav-links">
+                <a class="nav-item text-on-surface-variant font-semibold hover:text-primary transition-colors text-sm" href="#cong-nghe">Công nghệ</a>
+                <a class="nav-item text-on-surface-variant font-semibold hover:text-primary transition-colors text-sm" href="#quy-trinh">Quy trình</a>
+                <a class="nav-item text-on-surface-variant font-semibold hover:text-primary transition-colors text-sm" href="#bao-mat">Bảo mật</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="relative pt-40 pb-32 overflow-hidden bg-surface" id="cong-nghe">
+            <div class="max-w-[1400px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+                <div class="lg:col-span-7 z-10">
+                    <h1 class="text-[3.5rem] lg:text-[4.5rem] font-extrabold leading-[1.05] text-primary mb-8 tracking-tight">
+                        Khám phá công nghệ Tư pháp tương lai
+                    </h1>
+                    <p class="text-xl text-on-surface-variant max-w-2xl mb-12 leading-relaxed font-medium">
+                        <strong class="text-primary">Được tư vấn bởi Luật Sư AI.</strong> ChatBot AI kết hợp tinh hoa của trí tuệ nhân tạo hiện đại với nền tảng pháp lý vững chắc của Việt Nam, mang đến giải pháp tư vấn hôn nhân và gia đình chính xác, bảo mật và nhân văn.
+                    </p>
+                    <div class="flex gap-4">
+                        <button onclick="window.location.href='chat.html'" class="primary-gradient text-white px-10 py-4 rounded-xl font-bold text-base hover:scale-[1.02] transition-all ambient-shadow active:scale-95">
+                            Trải nghiệm ngay
+                        </button>
+                        <button class="bg-surface-container-highest text-on-surface px-10 py-4 rounded-xl font-bold text-base hover:bg-slate-300 transition-colors">
+                            Xem demo
+                        </button>
+                    </div>
+                </div>
+                <div class="lg:col-span-5 relative">
+                    <div class="absolute -top-20 -right-20 w-96 h-96 bg-primary-container/10 rounded-full blur-3xl -z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=1200&auto=format&fit=crop" 
+                         alt="Cân lý tưởng" 
+                         class="w-full h-auto rounded-[2rem] ambient-shadow object-cover aspect-[4/5]"/>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-surface-container-low py-32" id="quy-trinh">
+            <div class="max-w-[1400px] mx-auto px-8">
+                <div class="text-center mb-20 max-w-3xl mx-auto">
+                    <h2 class="text-4xl font-extrabold text-primary mb-4 tracking-tight">Quy trình Tư vấn Thông minh</h2>
+                    <p class="text-lg text-on-surface-variant font-medium">Ba bước đơn giản để tháo gỡ mọi nút thắt pháp lý của bạn được tư vấn bởi Luật Sư AI.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-surface-container-lowest p-12 rounded-[2rem] ambient-shadow ghost-border relative group hover:-translate-y-2 transition-transform duration-300 overflow-hidden">
+                        <div class="text-secondary-container text-[8rem] font-black absolute -top-6 -right-4 opacity-50 group-hover:opacity-80 transition-opacity">01</div>
+                        <span class="material-symbols-outlined text-primary text-5xl mb-8 relative z-10" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+                        <h3 class="text-2xl font-bold text-primary mb-4 relative z-10">Nhập yêu cầu</h3>
+                        <p class="text-on-surface-variant leading-relaxed font-medium relative z-10">Mô tả tình huống của bạn một cách tự nhiên. Hệ thống của chúng tôi được tối ưu để hiểu các vấn đề gia đình phức tạp.</p>
+                    </div>
+                    
+                    <div class="bg-surface-container-lowest p-12 rounded-[2rem] ambient-shadow ghost-border relative group hover:-translate-y-2 transition-transform duration-300 overflow-hidden">
+                        <div class="text-secondary-container text-[8rem] font-black absolute -top-6 -right-4 opacity-50 group-hover:opacity-80 transition-opacity">02</div>
+                        <span class="material-symbols-outlined text-primary text-5xl mb-8 relative z-10" style="font-variation-settings: 'FILL' 1;">psychology</span>
+                        <h3 class="text-2xl font-bold text-primary mb-4 relative z-10">Phân tích AI</h3>
+                        <p class="text-on-surface-variant leading-relaxed font-medium relative z-10">Luật Sư AI đối chiếu dữ liệu với hàng ngàn văn bản luật, nghị định và án lệ hiện hành tại Việt Nam trong tích tắc.</p>
+                    </div>
+                    
+                    <div class="bg-surface-container-lowest p-12 rounded-[2rem] ambient-shadow ghost-border relative group hover:-translate-y-2 transition-transform duration-300 overflow-hidden">
+                        <div class="text-secondary-container text-[8rem] font-black absolute -top-6 -right-4 opacity-50 group-hover:opacity-80 transition-opacity">03</div>
+                        <span class="material-symbols-outlined text-primary text-5xl mb-8 relative z-10" style="font-variation-settings: 'FILL' 1;">gavel</span>
+                        <h3 class="text-2xl font-bold text-primary mb-4 relative z-10">Giải pháp Pháp lý</h3>
+                        <p class="text-on-surface-variant leading-relaxed font-medium relative z-10">Nhận báo cáo chi tiết về quyền lợi, nghĩa vụ và các bước thực hiện tiếp theo một cách minh bạch.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-32 bg-surface" id="bao-mat">
+            <div class="max-w-[1400px] mx-auto px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+                    
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-6">
+                            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop" alt="Bảo mật dữ liệu" class="rounded-[2rem] w-full h-72 object-cover ambient-shadow"/>
+                            <div class="primary-gradient p-8 rounded-[2rem] text-white ambient-shadow">
+                                <span class="material-symbols-outlined text-[2.5rem] mb-4 text-secondary-container" style="font-variation-settings: 'FILL' 1;">encrypted</span>
+                                <h4 class="font-bold text-lg mb-2">256-bit Encryption</h4>
+                                <p class="text-sm opacity-80 font-medium">Bảo mật dữ liệu cấp độ ngân hàng cho mọi cuộc hội thoại.</p>
+                            </div>
+                        </div>
+                        <div class="space-y-6 pt-16">
+                            <div class="bg-surface-container-highest p-8 rounded-[2rem] ambient-shadow ghost-border">
+                                <span class="material-symbols-outlined text-primary text-[2.5rem] mb-4" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                                <h4 class="font-bold text-primary text-lg mb-2">Human-in-the-loop</h4>
+                                <p class="text-sm text-on-surface-variant font-medium">Mọi thuật toán đều được giám sát bởi đội ngũ luật sư kinh nghiệm.</p>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167?q=80&w=800&auto=format&fit=crop" alt="Thư viện luật" class="rounded-[2rem] w-full h-72 object-cover ambient-shadow bg-slate-200"/>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h2 class="text-4xl lg:text-[3rem] font-extrabold text-primary mb-12 leading-[1.1] tracking-tight">
+                            Nền tảng Công nghệ & <br/>Cam kết Bảo mật
+                        </h2>
+                        <div class="space-y-10">
+                            <div class="flex gap-6">
+                                <div class="bg-secondary-container w-14 h-14 rounded-full flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">policy</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xl text-primary mb-2">Tối ưu cho Luật pháp Việt Nam</h4>
+                                    <p class="text-on-surface-variant leading-relaxed font-medium">Không chỉ là dịch thuật, Luật Sư AI của chúng tôi được huấn luyện chuyên sâu trên hệ thống văn bản pháp quy của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-6">
+                                <div class="bg-secondary-container w-14 h-14 rounded-full flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">shield_lock</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xl text-primary mb-2">Quyền riêng tư tuyệt đối</h4>
+                                    <p class="text-on-surface-variant leading-relaxed font-medium">Dữ liệu cá nhân của bạn được mã hóa hoàn toàn và không bao giờ được sử dụng để quảng cáo hoặc chia sẻ cho bên thứ ba.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-6">
+                                <div class="bg-secondary-container w-14 h-14 rounded-full flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">hub</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xl text-primary mb-2">Cập nhật thời gian thực</h4>
+                                    <p class="text-on-surface-variant leading-relaxed font-medium">Cơ sở dữ liệu được cập nhật ngay khi có thay đổi trong Luật Hôn nhân & Gia đình hoặc các văn bản hướng dẫn mới nhất.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-primary py-32 text-white">
+            <div class="max-w-[1400px] mx-auto px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-extrabold tracking-tight">Tại sao chọn ChatBot AI?</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-16 text-left max-w-5xl mx-auto">
+                    <div class="border-l-[3px] border-secondary-container pl-8">
+                        <h4 class="text-2xl font-bold mb-3">Chính xác và Khách quan</h4>
+                        <p class="text-white/80 font-medium leading-relaxed">Luật Sư AI loại bỏ các yếu tố cảm tính, cung cấp cái nhìn trung lập dựa trên các quy định pháp luật hiện hành, giúp bạn đưa ra quyết định sáng suốt nhất.</p>
+                    </div>
+                    <div class="border-l-[3px] border-secondary-container pl-8">
+                        <h4 class="text-2xl font-bold mb-3">Tiết kiệm thời gian & Chi phí</h4>
+                        <p class="text-white/80 font-medium leading-relaxed">Thay vì chờ đợi hàng tuần, bạn có thể có được những tư vấn sơ bộ ban đầu chỉ trong vài phút, giúp chuẩn bị tâm thế tốt hơn.</p>
+                    </div>
+                    <div class="border-l-[3px] border-secondary-container pl-8">
+                        <h4 class="text-2xl font-bold mb-3">Hỗ trợ 24/7</h4>
+                        <p class="text-white/80 font-medium leading-relaxed">Vấn đề pháp lý có thể phát sinh bất cứ lúc nào. Hệ thống luôn sẵn sàng đồng hành cùng bạn mọi lúc, mọi nơi.</p>
+                    </div>
+                    <div class="border-l-[3px] border-secondary-container pl-8">
+                        <h4 class="text-2xl font-bold mb-3">Kết nối chuyên gia</h4>
+                        <p class="text-white/80 font-medium leading-relaxed">Khi vấn đề cần sự can thiệp trực tiếp, chúng tôi hỗ trợ kết nối bạn với những luật sư hàng đầu trong lĩnh vực gia đình.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-32 bg-surface">
+            <div class="max-w-5xl mx-auto px-8">
+                <div class="bg-surface-container-low rounded-[3rem] p-16 md:p-24 text-center relative overflow-hidden ambient-shadow">
+                    <div class="relative z-10">
+                        <h2 class="text-[2.5rem] font-extrabold text-primary mb-6 tracking-tight">Sẵn sàng để bắt đầu hành trình mới?</h2>
+                        <p class="text-lg text-on-surface-variant font-medium mb-12 max-w-2xl mx-auto">Mọi khó khăn đều có giải pháp. Hãy để ChatBot AI và Luật Sư AI đồng hành cùng bạn tìm ra con đường tốt nhất cho tương lai.</p>
+                        <button onclick="window.location.href='chat.html'" class="primary-gradient text-white px-12 py-5 rounded-xl font-bold text-lg hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20">
+                            Bắt đầu tư vấn miễn phí
+                        </button>
+                    </div>
+                    <div class="absolute top-0 right-0 w-80 h-80 bg-primary/5 rounded-full blur-3xl -mr-20 -mt-20"></div>
+                    <div class="absolute bottom-0 left-0 w-80 h-80 bg-secondary-container/30 rounded-full blur-3xl -ml-20 -mb-20"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="w-full py-16 px-8 bg-surface border-t ghost-border">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-[1400px] mx-auto">
+            <div class="space-y-4">
+                <div class="text-lg font-extrabold text-primary">ChatBot AI Luật Hôn Nhân và Gia Đình</div>
+                <p class="text-on-surface-variant text-sm font-medium max-w-md leading-relaxed">
+                    Chuyên gia tư vấn pháp luật hôn nhân và gia đình Việt Nam được tư vấn bởi Luật Sư AI, dựa trên nền tảng trí tuệ nhân tạo.
+                </p>
+            </div>
+            <div class="flex flex-col md:items-end gap-6 justify-center">
+                
+                <p class="text-on-surface-variant/60 text-xs font-semibold uppercase tracking-widest mt-2">
+                    © 2026 ChatBot AI. Bảo mật bởi Tiêu chuẩn Tư pháp Việt Nam.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

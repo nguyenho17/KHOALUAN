@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html class="light" lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Chatbot AI - Luật Hôn Nhân Và Gia Đình tại Việt Nam</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#002045",
+                        "primary-container": "#1a365d",
+                        "secondary": "#48626e",
+                        "secondary-container": "#cbe7f5",
+                        "surface": "#f8f9fa",
+                        "surface-container-low": "#f3f4f5",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-surface": "#191c1d",
+                        "on-surface-variant": "#43474e",
+                        "outline-variant": "#c4c6cf",
+                    },
+                    fontFamily: {
+                        sans: ['Be Vietnam Pro', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Be Vietnam Pro', 'sans-serif'; background-color: #f8f9fa; color: #191c1d; }
+        .glass-nav { background: rgba(248, 249, 250, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Hiệu ứng Gradient cho các nút chính từ DESIGN.md */
+        .primary-gradient {
+            background: linear-gradient(135deg, #002045 0%, #1a365d 100%);
+        }
+        
+        /* Đổ bóng nhẹ theo Design System */
+        .ambient-shadow { box-shadow: 0 20px 40px rgba(0, 32, 69, 0.06); }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <aside class="hidden md:flex flex-col w-72 bg-surface-container-low h-full py-8 flex-shrink-0">
+       <a href="trangchu.html" class="block px-8 mb-10 hover:opacity-80 transition-opacity">
+            <h1 class="text-xl font-extrabold text-primary tracking-tight">ChatBot AI</h1>
+            <p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] font-bold mt-1">Luật Hôn Nhân và Gia Đình</p>
+        </a>
+
+        <div class="px-6 mb-8">
+            <button class="w-full primary-gradient text-white py-3.5 rounded-xl font-bold hover:opacity-95 transition-all flex items-center justify-center gap-2 ambient-shadow">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                <span class="text-sm">Tư vấn mới</span>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto no-scrollbar">
+            <div class="px-8 py-4 text-[11px] font-bold text-on-surface-variant/50 uppercase tracking-widest">Lịch sử tư vấn</div>
+            
+            <div id="history-list" class="px-4 space-y-1 flex flex-col">
+            </div>
+        </nav>
+
+        <div class="px-6 mt-auto pt-6 border-t border-on-surface-variant/5">
+            <div id="user-menu-trigger" class="relative flex items-center gap-3 p-3 rounded-xl hover:bg-surface-container-highest transition-colors cursor-pointer">
+                <div class="w-10 h-10 rounded-full bg-secondary-container overflow-hidden flex-shrink-0">
+                    <img id="sidebar-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" class="w-full h-full object-cover shadow-sm">
+                </div>
+                <div class="overflow-hidden">
+                    <p id="display-username" class="text-sm font-bold text-primary truncate">Người dùng</p>
+                </div>
+                
+                <div id="user-dropdown" class="hidden absolute bottom-full left-0 mb-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
+                    <button id="btn-open-profile" class="w-full text-left px-5 py-3 hover:bg-gray-50 flex items-center gap-3 text-sm font-bold transition-all text-gray-700">
+                        <span class="material-symbols-outlined text-lg">person</span> Hồ sơ
+                    </button>
+                    <button id="btn-logout" class="w-full text-left px-5 py-3 hover:bg-red-50 text-red-600 flex items-center gap-3 text-sm font-bold transition-all">
+                        <span class="material-symbols-outlined text-lg">logout</span> Đăng xuất
+                    </button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full bg-surface relative overflow-hidden">
+        
+        <header class="glass-nav sticky top-0 z-40 flex justify-between items-center px-10 py-5 w-full">
+            <div class="flex items-center gap-4">
+                <div class="md:hidden">
+                    <span class="material-symbols-outlined text-primary">menu</span>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-primary tracking-tight">Luật sư AI</h2>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-[11px] font-semibold text-on-surface-variant">Sẵn sàng tư vấn pháp lý</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined text-[22px]">share</span>
+                </button>
+                <button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined text-[22px]">print</span>
+                </button>
+            </div>
+        </header>
+
+        <section id="chat-container" class="flex-1 overflow-y-auto px-6 md:px-20 pt-12 pb-40 space-y-12 no-scrollbar">
+            
+            <div class="max-w-4xl mx-auto mb-16">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                    <div class="md:col-span-8">
+                        <h3 class="text-[3.5rem] font-extrabold text-primary leading-[1.1] tracking-tighter mb-6">Chào bạn,<br>tôi là Luật Sư AI.</h3>
+                        <p class="text-xl text-on-surface-variant font-medium leading-relaxed opacity-80">
+                            Tôi là trợ lý trí tuệ nhân tạo chuyên sâu về Luật Hôn nhân và Gia đình Việt Nam. Tôi ở đây để lắng nghe và cung cấp thông tin pháp lý chính xác, bảo mật cho trường hợp của bạn.
+                        </p>
+                    </div>
+                    <div class="md:col-span-4 flex justify-end">
+                        <div class="w-48 h-48 bg-slate-200/50 rounded-3xl flex items-center justify-center relative overflow-hidden group">
+                            <div class="absolute inset-0 bg-primary opacity-5 group-hover:opacity-10 transition-opacity"></div>
+                            <span class="material-symbols-outlined text-primary text-7xl opacity-80" style="font-variation-settings: 'FILL' 1;">balance</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-3xl mx-auto space-y-10">
+                
+                <div class="flex gap-5 items-start">
+                    <div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1 shadow-md">
+                        <span class="material-symbols-outlined text-white text-sm" style="font-variation-settings: 'FILL' 1;">shield_person</span>
+                    </div>
+                    <div class="bg-white p-6 rounded-[2rem] rounded-tl-none ambient-shadow border border-on-surface-variant/5 max-w-[85%]">
+                        <p class="text-[15px] leading-relaxed font-medium text-slate-700">
+                            Để bắt đầu, bạn có thể chọn một trong các câu hỏi gợi ý bên dưới hoặc tự nhập nội dung cần tư vấn. Mọi thông tin bạn cung cấp đều được mã hóa và bảo mật tuyệt đối.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="h-32"></div>
+        </section>
+
+        <footer class="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-surface via-surface to-transparent">
+            <div class="max-w-3xl mx-auto">
+                <div class="relative flex items-end gap-3 bg-surface-container-low p-3 rounded-2xl border-b-[3px] border-primary ambient-shadow focus-within:bg-white transition-all">
+                    <button class="p-3 text-on-surface-variant hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined text-[22px]">attach_file</span>
+                    </button>
+                    <textarea 
+                        rows="1" 
+                        placeholder="Nhập nội dung cần tư vấn tại đây..." 
+                        class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3 resize-none font-medium placeholder:text-on-surface-variant/40"
+                    ></textarea>
+                    <button class="p-4 primary-gradient text-white rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">send</span>
+                    </button>
+                </div>
+                <p class="text-[9px] text-center text-on-surface-variant/60 mt-4 uppercase tracking-[0.2em] font-bold">
+                    Luật sư AI có thể cung cấp thông tin chưa chính xác. Vui lòng kiểm tra lại văn bản luật chính thống.
+                </p>
+            </div>
+        </footer>
+    </main>
+
+    <div id="profile-modal" class="hidden fixed inset-0 bg-black/40 z-[100] items-center justify-center backdrop-blur-sm transition-all">
+        <div class="bg-white rounded-[2rem] w-full max-w-md p-8 shadow-2xl relative">
+            <h2 class="text-xl font-extrabold text-primary mb-6">Chỉnh sửa hồ sơ</h2>
+            
+            <div class="flex flex-col items-center mb-8 relative">
+                <div class="relative group cursor-pointer" onclick="document.getElementById('avatar-upload').click()">
+                    <img id="preview-avatar" src="https://ui-avatars.com/api/?name=User" class="w-24 h-24 rounded-full object-cover border-4 border-surface shadow-md group-hover:opacity-80 transition-all">
+                    <div class="absolute bottom-0 right-0 bg-white p-1.5 rounded-full shadow-lg border border-gray-100">
+                        <span class="material-symbols-outlined text-gray-600 text-sm">photo_camera</span>
+                    </div>
+                </div>
+                <input type="file" id="avatar-upload" accept="image/*" class="hidden">
+            </div>
+
+            <form id="profileForm" class="space-y-4">
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-gray-500">Tên hiển thị</label>
+                    <input type="text" id="profile-hoten" required class="w-full p-3 border border-gray-200 rounded-xl focus:border-primary focus:ring-0 outline-none font-medium text-gray-700">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-gray-500">Tên người dùng</label>
+                    <input type="text" id="profile-username" required class="w-full p-3 border border-gray-200 rounded-xl focus:border-primary focus:ring-0 outline-none font-medium text-gray-500">
+                </div>
+                
+                <p class="text-xs text-center text-gray-400 font-medium py-2">Hồ sơ của bạn giúp người khác nhận ra bạn. Tên và tên người dùng sẽ được cập nhật trên toàn hệ thống.</p>
+                
+                <div id="profile-msg" class="text-xs text-center font-bold hidden"></div>
+
+                <div class="flex gap-3 justify-end pt-4">
+                    <button type="button" id="btn-close-profile" class="px-6 py-2.5 rounded-xl border border-gray-200 font-bold text-gray-600 hover:bg-gray-50 transition-all">Hủy</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-primary text-white font-bold shadow-md hover:opacity-90 transition-all">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // SCRIPT NỘI TUYẾN: Tải lịch sử tư vấn lên Sidebar
+        // ĐÃ SỬA: Thêm Authorization token + username vào request
+        //         để backend nhận diện đúng người dùng đang đăng nhập
+        // ============================================================
+        document.addEventListener("DOMContentLoaded", function() {
+            const historyList = document.getElementById("history-list");
+            
+            if (historyList) {
+                // Tải hiệu ứng skeleton loading tạm thời trong lúc chờ kết quả
+                historyList.innerHTML = `
+                    <div class="animate-pulse space-y-3 px-4 py-2">
+                        <div class="h-4 bg-on-surface-variant/10 rounded w-3/4"></div>
+                        <div class="h-4 bg-on-surface-variant/10 rounded w-5/6"></div>
+                        <div class="h-4 bg-on-surface-variant/10 rounded w-2/3"></div>
+                    </div>
+                `;
+
+                // ĐÃ SỬA: Lấy token và username từ localStorage để gửi lên backend
+                const token = localStorage.getItem("access_token") || localStorage.getItem("token");
+                const username = localStorage.getItem("username");
+
+                // Nếu chưa đăng nhập thì dừng, không cần fetch
+                if (!username) {
+                    historyList.innerHTML = '<div class="px-4 py-3 text-xs text-on-surface-variant/40 italic">Vui lòng đăng nhập để xem lịch sử</div>';
+                    return;
+                }
+
+                // Tiến hành Fetch dữ liệu từ API POST
+                // ĐÃ SỬA: Dùng URL tuyệt đối + gửi đầy đủ token và username
+                fetch("http://127.0.0.1:8000/api/chat/history", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": token ? `Bearer ${token}` : ""
+                    },
+                    // ĐÃ SỬA: Truyền đầy đủ username theo mọi key mà backend có thể nhận
+                    body: JSON.stringify({
+                        TenDangNhap: username,
+                        username: username,
+                        user_id: username
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error("Không thể nạp dữ liệu lịch sử, status: " + response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("=== [chat.html] Dữ liệu lịch sử nhận được ===", data);
+                    historyList.innerHTML = ""; // Xóa skeleton loading
+
+                    // Hỗ trợ linh hoạt cấu trúc trả về: mảng thẳng [] hoặc object bao ngoài
+                    const items = Array.isArray(data) ? data 
+                        : (data.history || data.data || data.conversations || data.sessions || data.results || []);
+
+                    if (items.length === 0) {
+                        historyList.innerHTML = '<div class="px-4 py-3 text-xs text-on-surface-variant/40 italic">Chưa có lịch sử tư vấn</div>';
+                        return;
+                    }
+
+                    // Render danh sách các cuộc hội thoại
+                    items.forEach((item, index) => {
+                        // ĐÃ SỬA: Đọc thêm field tieu_de (tên tiếng Việt từ backend FastAPI/SQLAlchemy)
+                        const title = item.tieu_de || item.title || item.chat_title || item.TieuDe
+                                   || item.summary || item.question || item.CauHoi 
+                                   || `Phiên tư vấn #${index + 1}`;
+                        const id = item.id || item.session_id || item._id || item.ma_phien || item.MaPhien || index;
+                        // ĐÃ SỬA: Đọc thêm field thoi_gian (tên tiếng Việt)
+                        const timeStr = item.thoi_gian || item.ThoiGian || item.created_at || item.timestamp;
+                        const displayTime = timeStr ? new Date(timeStr).toLocaleDateString('vi-VN') : "Gần đây";
+
+                        const itemBtn = document.createElement("div");
+                        itemBtn.className = "flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface-container-highest text-sm font-medium text-on-surface-variant transition-colors cursor-pointer group mb-1";
+                        itemBtn.setAttribute("data-session-id", id);
+                        
+                        itemBtn.innerHTML = `
+                            <span class="material-symbols-outlined text-[18px] opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0">chat_bubble</span>
+                            <div class="overflow-hidden flex-1">
+                                <p class="truncate text-sm font-semibold text-slate-700">${title}</p>
+                                <p class="text-[11px] text-slate-400 mt-0.5">${displayTime}</p>
+                            </div>
+                        `;
+
+                        // Xử lý sự kiện click để tải lại phiên chat tương ứng
+                        itemBtn.addEventListener("click", () => {
+                            if (typeof window.loadChatSession === "function") {
+                                window.loadChatSession(id);
+                            } else {
+                                console.warn("loadChatSession chưa sẵn sàng, Session ID:", id);
+                            }
+                        });
+
+                        historyList.appendChild(itemBtn);
+                    });
+                })
+                .catch(err => {
+                    console.error("Lỗi khi đồng bộ history list:", err);
+                    historyList.innerHTML = '<div class="px-4 py-3 text-xs text-red-500/50 italic">Không thể tải lịch sử</div>';
+                });
+            }
+        });
+
+        // Hàm toàn cục để app.js có thể gọi reload history từ chat.html
+        // Được gọi sau mỗi lần gửi tin nhắn mới thành công
+        window.reloadSidebarHistory = function() {
+            const event = new Event("DOMContentLoaded");
+            // Kích hoạt lại bằng cách gọi trực tiếp fetchChatHistory nếu app.js đã sẵn sàng
+            if (typeof window.fetchChatHistory === "function") {
+                window.fetchChatHistory();
+            }
+        };
+        document.addEventListener("DOMContentLoaded", function () {
+    // 🚀 BẢO VỆ CHATWEB: Ép buộc hủy bỏ hoàn toàn Dark Mode trên trang tư vấn công dân
+    document.documentElement.classList.remove("dark");
+    document.documentElement.className = "light";
+    
+    // Toàn bộ các đoạn code xử lý API chat, gửi nhận tin nhắn, hiển thị tin nhắn... của Hồ giữ nguyên ở phía dưới
+});
+    </script>
+
+    <script src="app.js"></script>
+</body>
+</html>

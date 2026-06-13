@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html class="light" lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Chi tiết Hội thoại Kiểm định | ChatBot AI Luật Hôn Nhân</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#002045",
+                        "primary-container": "#1a365d",
+                        "primary-fixed": "#d6e3ff",
+                        "secondary": "#48626e",
+                        "secondary-container": "#cbe7f5",
+                        "tertiary-fixed": "#ffddba",
+                        "on-tertiary-fixed-variant": "#633f0f",
+                        "surface": "#f8f9fa",
+                        "surface-container-low": "#f3f4f5",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-background": "#191c1d",
+                        "on-surface": "#191c1d",
+                        "on-surface-variant": "#43474e",
+                        "outline-variant": "#c4c6cf",
+                    },
+                    fontFamily: {
+                        sans: ['Be Vietnam Pro', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: #f8f9fa; color: #191c1d; }
+        .glass-header { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .primary-gradient { background: linear-gradient(135deg, #002045 0%, #1a365d 100%); }
+        .ambient-shadow { box-shadow: 0 20px 40px rgba(0, 32, 69, 0.06); }
+        .ghost-border { border: 1px solid rgba(196, 198, 207, 0.15); }
+        
+        .asymmetric-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 2rem; }
+        @media (max-width: 1024px) { .asymmetric-grid { grid-template-columns: 1fr; } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden selection:bg-secondary-container">
+
+    <aside class="hidden md:flex flex-col w-64 bg-surface-container-lowest border-r ghost-border h-full py-8 flex-shrink-0 z-50">
+        <a href="trangchu.html" class="block px-6 mb-10 hover:opacity-80 transition-opacity">
+            <h1 class="text-xl font-extrabold text-primary tracking-tight leading-none mb-1">ChatBot AI</h1>
+            <p class="text-[9px] text-on-surface-variant uppercase tracking-[0.2em] font-bold">Luật Hôn Nhân và Gia Đình</p>
+        </a>
+        <nav class="flex-grow space-y-1">
+            <a href="admin.html" class="flex items-center px-6 py-3.5 space-x-3 text-on-surface-variant font-medium hover:text-primary hover:bg-surface-container-low transition-all">
+                <span class="material-symbols-outlined text-[20px]">dashboard</span><span class="text-sm">Tổng quan</span>
+            </a>
+            <a href="qlytuvan.html" class="flex items-center px-6 py-3.5 space-x-3 text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-all">
+                <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">forum</span><span class="text-sm">Hội thoại</span>
+            </a>
+            <a href="phantich.html" class="flex items-center px-6 py-3.5 space-x-3 text-on-surface-variant font-medium hover:text-primary hover:bg-surface-container-low transition-all">
+                <span class="material-symbols-outlined text-[20px]">insights</span><span class="text-sm">Thống kê</span>
+            </a>
+            <a href="caidat.html" class="flex items-center px-6 py-3.5 space-x-3 text-on-surface-variant font-medium hover:text-primary hover:bg-surface-container-low transition-all">
+                <span class="material-symbols-outlined text-[20px]">settings</span><span class="text-sm">Cài đặt</span>
+            </a>
+        </nav>
+        <div class="px-6 mt-auto">
+            <div id="user-menu-trigger" class="relative flex items-center gap-3 p-2 rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer z-50">
+                <div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden shrink-0">
+                    <img id="sidebar-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="Admin" class="w-full h-full object-cover">
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-sm font-bold text-primary truncate">Admin Hệ Thống</p>
+                    <p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">Quyền tối cao</p>
+                </div>
+                <div id="user-dropdown" class="hidden absolute bottom-full left-0 mb-2 w-56 bg-white rounded-2xl border ghost-border ambient-shadow flex-col py-2 z-50">
+                    <button id="btn-logout" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors text-left">
+                        <span class="material-symbols-outlined text-[18px]">logout</span>Đăng xuất hệ thống
+                    </button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-grow flex flex-col h-full overflow-y-auto no-scrollbar relative">
+        <header class="glass-header sticky top-0 z-40 flex justify-between items-center px-8 h-20 w-full border-b ghost-border">
+            <div class="flex items-center gap-2">
+                <button onclick="window.location.href='qlytuvan.html'" class="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">arrow_back</span> Trở lại danh sách
+                </button>
+            </div>
+            <div class="text-sm font-bold text-primary" id="header-time">Đang tải bản ghi...</div>
+        </header>
+
+        <div class="p-8 lg:p-12 max-w-[1600px] w-full mx-auto space-y-8">
+            <section class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <h2 id="txt-user-id" class="text-3xl font-black text-primary">#USR-XXXX</h2>
+                        <span id="badge-status-duyet" class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border">PENDING</span>
+                    </div>
+                    <p id="txt-full-name" class="text-on-surface-variant font-medium text-lg">Chủ tài khoản: ...</p>
+                </div>
+            </section>
+
+            <div class="asymmetric-grid">
+                <div class="space-y-6">
+                    <div class="bg-surface-container-lowest p-6 rounded-3xl border ghost-border ambient-shadow">
+                        <div class="flex items-center gap-2 mb-3 text-primary">
+                            <span class="material-symbols-outlined text-[20px]">account_circle</span>
+                            <h4 class="text-xs font-black uppercase tracking-widest text-primary/70">Nội dung câu hỏi từ công dân</h4>
+                        </div>
+                        <p id="txt-question" class="text-base text-primary font-medium leading-relaxed whitespace-pre-line">Đang tải...</p>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-3xl border-l-4 border-primary ambient-shadow ghost-border">
+                        <div class="flex items-center gap-2 mb-4 text-primary">
+                            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">gavel</span>
+                            <h4 class="text-xs font-black uppercase tracking-widest">Luật sư AI phản hồi hệ thống RAG++</h4>
+                        </div>
+                        <p id="txt-answer" class="text-base text-on-surface font-medium leading-relaxed whitespace-pre-line">Đang tải...</p>
+                    </div>
+
+                    <div class="bg-surface-container-low/50 p-6 rounded-3xl border ghost-border">
+                        <div class="flex items-center gap-2 mb-3 text-secondary">
+                            <span class="material-symbols-outlined text-[20px]">menu_book</span>
+                            <h4 class="text-xs font-black uppercase tracking-widest text-secondary/80">Căn cứ pháp lý truy xuất (Citations)</h4>
+                        </div>
+                        <p id="txt-citations" class="text-sm font-bold text-secondary leading-relaxed">N/A</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-surface-container-lowest p-6 rounded-3xl border ghost-border ambient-shadow space-y-5">
+                        <h4 class="text-xs font-black uppercase tracking-widest text-primary">Chỉ số kiểm định RAG++ (Online Evaluation)</h4>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-surface-container-low p-4 rounded-2xl text-center flex flex-col justify-center">
+                                <p class="text-[9px] font-black text-on-surface-variant uppercase tracking-wider mb-1">1. Keyword Accuracy</p>
+                                <p id="score-em" class="text-xl font-black text-primary">0.00 / 1.0</p>
+                            </div>
+                            <div class="primary-gradient p-4 rounded-2xl text-center text-white flex flex-col justify-center shadow-md">
+                                <p class="text-[9px] font-black text-primary-fixed uppercase tracking-wider mb-1">2. LLM Judge Score</p>
+                                <p id="score-llm" class="text-xl font-black text-white">0.00 / 10</p>
+                            </div>
+                        </div>
+
+                        <div class="h-[1px] bg-outline-variant/30 my-2"></div>
+
+                        <div class="space-y-3.5">
+                            <p class="text-[10px] font-black text-primary uppercase tracking-widest">Chi tiết bộ 5 tiêu chí liên kết:</p>
+                            
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs font-bold text-on-surface-variant">
+                                    <span>- Tính xác thực (Factuality):</span>
+                                    <span id="p-factuality" class="text-primary font-black">0.00 / 10</span>
+                                </div>
+                                <div class="h-1.5 w-full bg-surface-container-low rounded-full overflow-hidden">
+                                    <div id="bar-factuality" class="h-full bg-primary rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs font-bold text-on-surface-variant">
+                                    <span>- Tính đầy đủ (Completeness):</span>
+                                    <span id="p-completeness" class="text-primary font-black">0.00 / 10</span>
+                                </div>
+                                <div class="h-1.5 w-full bg-surface-container-low rounded-full overflow-hidden">
+                                    <div id="bar-completeness" class="h-full bg-primary rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs font-bold text-on-surface-variant">
+                                    <span>- Tính mạch lạc (Logical Coherence):</span>
+                                    <span id="p-coherence" class="text-primary font-black">0.00 / 10</span>
+                                </div>
+                                <div class="h-1.5 w-full bg-surface-container-low rounded-full overflow-hidden">
+                                    <div id="bar-coherence" class="h-full bg-primary rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs font-bold text-on-surface-variant">
+                                    <span>- Tính rõ ràng (Clarity):</span>
+                                    <span id="p-clarity" class="text-primary font-black">0.00 / 10</span>
+                                </div>
+                                <div class="h-1.5 w-full bg-surface-container-low rounded-full overflow-hidden">
+                                    <div id="bar-clarity" class="h-full bg-primary rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs font-bold text-on-surface-variant">
+                                    <span>- Đúng trọng tâm (Answer Relevance):</span>
+                                    <span id="p-relevance" class="text-primary font-black">0.00 / 10</span>
+                                </div>
+                                <div class="h-1.5 w-full bg-surface-container-low rounded-full overflow-hidden">
+                                    <div id="bar-relevance" class="h-full bg-primary rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="h-[1px] bg-outline-variant/30 my-1"></div>
+
+                        <div class="pt-1 text-center text-xs font-semibold text-on-surface-variant">
+                            Thời gian suy luận: <span id="txt-response-time" class="font-bold text-primary">0.00</span> giây
+                        </div>
+                    </div>
+
+                    <div class="bg-surface-container-lowest p-6 rounded-3xl border ghost-border ambient-shadow space-y-5">
+                        <h4 class="text-xs font-black uppercase tracking-widest text-primary">Thẩm định thủ công (Human-in-the-loop)</h4>
+                        <div class="space-y-2">
+                            <label class="text-[11px] font-black uppercase tracking-wider text-on-surface-variant block">Trạng thái phê duyệt</label>
+                            <select id="select-status-review" class="w-full bg-surface border-none rounded-xl py-3 px-4 text-sm font-bold shadow-sm focus:ring-1 focus:ring-primary text-primary outline-none cursor-pointer">
+                                <option value="Pending">Chờ thẩm định (Pending)</option>
+                                <option value="Verified">Đã phê duyệt chuẩn (Verified)</option>
+                                <option value="Rejected">Từ chối / Lỗi phản hồi (Rejected)</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[11px] font-black uppercase tracking-wider text-on-surface-variant block">Đáp án chuẩn lý thuyết (Ground Truth)</label>
+                            <textarea id="textarea-ground-truth" rows="4" placeholder="Nhập nội dung câu trả lời chuẩn từ Luật sư thực tế để làm giàu tập Benchmark dữ liệu RAG++..." class="w-full bg-surface border-none rounded-xl p-4 text-sm font-medium focus:ring-1 focus:ring-primary outline-none text-primary placeholder:text-on-surface-variant/40 resize-none"></textarea>
+                        </div>
+                        <button id="btn-save-review" class="w-full primary-gradient text-white py-3.5 rounded-xl font-bold hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-md">
+                            <span class="material-symbols-outlined text-[18px]">workspace_premium</span> Lưu kết quả thẩm định
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="h-8"></div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const accessToken = localStorage.getItem("access_token");
+            const userInfoStr = localStorage.getItem("user_info");
+
+            if (!accessToken || !userInfoStr) {
+                window.location.href = "login.html";
+                return;
+            }
+            const userInfo = JSON.parse(userInfoStr);
+            if (Number(userInfo.ma_vai_tro) !== 1) {
+                window.location.href = "trangchu.html";
+                return;
+            }
+
+            const adminSidebarName = document.querySelector("aside .overflow-hidden p.text-primary");
+            if (adminSidebarName) adminSidebarName.textContent = userInfo.ho_ten || "Quản Trị Viên";
+
+            const adminTrigger = document.getElementById("user-menu-trigger");
+            const adminDropdown = document.getElementById("user-dropdown");
+            if (adminTrigger && adminDropdown) {
+                adminTrigger.addEventListener("click", (e) => { e.stopPropagation(); adminDropdown.classList.toggle("hidden"); });
+                document.addEventListener("click", () => adminDropdown.classList.add("hidden"));
+            }
+            document.getElementById("btn-logout")?.addEventListener("click", () => {
+                localStorage.clear(); window.location.href = "login.html";
+            });
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const chatId = urlParams.get("id");
+
+            if (!chatId) {
+                alert("❌ Lỗi: Không tìm thấy định danh phiên tư vấn!");
+                window.location.href = "qlytuvan.html"; return;
+            }
+
+            const txtUserId = document.getElementById("txt-user-id");
+            const badgeStatus = document.getElementById("badge-status-duyet");
+            const txtFullName = document.getElementById("txt-full-name");
+            const txtQuestion = document.getElementById("txt-question");
+            const txtAnswer = document.getElementById("txt-answer");
+            const txtCitations = document.getElementById("txt-citations");
+            const headerTime = document.getElementById("header-time");
+            
+            const scoreEm = document.getElementById("score-em");
+            const scoreLlm = document.getElementById("score-llm");
+            const txtResponseTime = document.getElementById("txt-response-time");
+            
+            const selectStatus = document.getElementById("select-status-review");
+            const textareaGt = document.getElementById("textarea-ground-truth");
+            const btnSave = document.getElementById("btn-save-review");
+
+            const pFactuality = document.getElementById("p-factuality");
+            const pCompleteness = document.getElementById("p-completeness");
+            const pCoherence = document.getElementById("p-coherence");
+            const pClarity = document.getElementById("p-clarity");
+            const pRelevance = document.getElementById("p-relevance");
+
+            const barFactuality = document.getElementById("bar-factuality");
+            const barCompleteness = document.getElementById("bar-completeness");
+            const barCoherence = document.getElementById("bar-coherence");
+            const barClarity = document.getElementById("bar-clarity");
+            const barRelevance = document.getElementById("bar-relevance");
+
+            async function loadConversationDetail() {
+                try {
+                    const response = await fetch(`http://127.0.0.1:8000/api/admin/conversations/${chatId}`, {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${accessToken}`,
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    if (!response.ok) throw new Error("Phiên làm việc lỗi hoặc bản ghi không tồn tại!");
+                    const data = await response.json();
+
+                    txtUserId.textContent = data.user_id;
+                    txtFullName.textContent = `Chủ tài khoản: ${data.full_name}`;
+                    txtQuestion.textContent = data.question;
+                    txtAnswer.textContent = data.answer;
+                    txtCitations.textContent = data.citations;
+                    headerTime.textContent = `Thời gian chat: ${data.timestamp}`;
+                    txtResponseTime.textContent = data.response_time;
+
+                    // 🛠️ ĐÃ FIX HOÀN HẢO: Đọc trực tiếp trường score_kw từ API đổ về
+                    const keywordAccuracyBase = data.score_kw ? data.score_kw / 100 : 0;
+                    const llmJudgeBase = data.score_llm ? data.score_llm / 10 : 0;
+
+                    scoreEm.textContent = `${keywordAccuracyBase.toFixed(2)} / 1.0`;
+                    scoreLlm.textContent = `${llmJudgeBase.toFixed(2)} / 10`;
+
+                    // 🛠️ ĐÃ SỬA GỐC RỄ: Đọc trực tiếp 100% 5 tiêu chí thật từ DB, không dùng công thức nội suy cũ nữa
+                    const f_score = data.score_factuality ? data.score_factuality / 10 : 0;
+                    const c_score = data.score_completeness ? data.score_completeness / 10 : 0;
+                    const h_score = data.score_coherence ? data.score_coherence / 10 : 0;
+                    const l_score = data.score_clarity ? data.score_clarity / 10 : 0;
+                    const r_score = data.score_relevance ? data.score_relevance / 10 : 0;
+
+                    pFactuality.textContent = `${f_score.toFixed(2)} / 10`;
+                    pCompleteness.textContent = `${c_score.toFixed(2)} / 10`;
+                    pCoherence.textContent = `${h_score.toFixed(2)} / 10`;
+                    pClarity.textContent = `${l_score.toFixed(2)} / 10`;
+                    pRelevance.textContent = `${r_score.toFixed(2)} / 10`;
+
+                    barFactuality.style.width = `${f_score * 10}%`;
+                    barCompleteness.style.width = `${c_score * 10}%`;
+                    barCoherence.style.width = `${h_score * 10}%`;
+                    barClarity.style.width = `${l_score * 10}%`;
+                    barRelevance.style.width = `${r_score * 10}%`;
+
+                    selectStatus.value = data.status_duyet;
+                    textareaGt.value = data.ground_truth;
+
+                    badgeStatus.textContent = data.status_duyet;
+                    if (data.status_duyet === "Verified") {
+                        badgeStatus.className = "px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-green-50 text-green-700 border-green-200";
+                    } else if (data.status_duyet === "Rejected") {
+                        badgeStatus.className = "px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-rose-50 text-rose-700 border-rose-200";
+                    } else {
+                        badgeStatus.className = "px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-amber-50 text-amber-700 border-amber-200";
+                    }
+
+                } catch (error) {
+                    alert(`❌ Lỗi hệ thống: ${error.message}`); window.location.href = "qlytuvan.html";
+                }
+            }
+
+            btnSave?.addEventListener("click", async function () {
+                try {
+                    btnSave.disabled = true; btnSave.textContent = "Đang ghi dữ liệu...";
+                    const reviewResponse = await fetch(`http://127.0.0.1:8000/api/admin/conversations/${chatId}/review`, {
+                        method: "PUT",
+                        headers: { "Authorization": `Bearer ${accessToken}`, "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            trang_thai: selectStatus.value,
+                            ground_truth: textareaGt.value.trim ? textareaGt.value.trim() : textareaGt.value
+                        })
+                    });
+                    if (!reviewResponse.ok) throw new Error("Cập nhật thất bại.");
+                    alert("✅ Hệ thống đã ghi nhận kết quả thẩm định Human-in-the-loop thành công!");
+                    loadConversationDetail();
+                } catch (error) {
+                    alert(`❌ Lỗi cập nhật: ${error.message}`);
+                } finally {
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = `<span class="material-symbols-outlined text-[18px]">workspace_premium</span> Lưu kết quả thẩm định`;
+                }
+            });
+            loadConversationDetail();
+        });
+    </script>
+</body>
+</html>

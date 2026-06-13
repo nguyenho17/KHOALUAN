@@ -1,0 +1,495 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .party-app { padding: 1rem 0; min-height: 600px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .title-big { font-size: 28px; font-weight: 500; color: var(--color-text-primary); text-align: center; margin-bottom: 8px; }
+  .subtitle { font-size: 15px; color: var(--color-text-secondary); text-align: center; margin-bottom: 2rem; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 12px; cursor: pointer; transition: border-color 0.15s; }
+  .card:hover { border-color: var(--color-border-secondary); }
+  .card.selected { border: 2px solid #7F77DD; background: #EEEDFE; }
+  .mode-icon { font-size: 28px; margin-bottom: 8px; }
+  .mode-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .mode-desc { font-size: 13px; color: var(--color-text-secondary); }
+  .btn { display: inline-block; padding: 10px 28px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); font-size: 15px; cursor: pointer; background: transparent; color: var(--color-text-primary); transition: background 0.12s, transform 0.1s; font-family: var(--font-sans); }
+  .btn:hover { background: var(--color-background-secondary); }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: #7F77DD; color: white; border-color: #7F77DD; }
+  .btn-primary:hover { background: #534AB7; border-color: #534AB7; }
+  .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
+  .player-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: 20px; padding: 4px 12px 4px 4px; font-size: 13px; color: var(--color-text-primary); margin: 4px; }
+  .player-avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: white; flex-shrink: 0; }
+  .player-remove { cursor: pointer; color: var(--color-text-tertiary); font-size: 16px; margin-left: 4px; }
+  .player-remove:hover { color: var(--color-text-primary); }
+  .chip-area { min-height: 48px; border: 0.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 8px; margin-bottom: 12px; }
+  .input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .input-row input { flex: 1; }
+  .game-header { text-align: center; margin-bottom: 1.5rem; }
+  .round-badge { display: inline-block; background: #EEEDFE; color: #534AB7; font-size: 13px; padding: 4px 14px; border-radius: 20px; margin-bottom: 8px; }
+  .player-turn { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .question-card { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 2rem 1.5rem; text-align: center; margin: 1rem 0 1.5rem; min-height: 140px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+  .question-type { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 12px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .question-text { font-size: 18px; color: var(--color-text-primary); line-height: 1.5; font-weight: 500; }
+  .spin-wheel { position: relative; width: 200px; height: 200px; margin: 0 auto 1.5rem; }
+  .wheel-inner { width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--color-border-secondary); display: flex; align-items: center; justify-content: center; background: conic-gradient(#EEEDFE 0deg 60deg, #E1F5EE 60deg 120deg, #FAECE7 120deg 180deg, #FBEAF0 180deg 240deg, #FAEEDA 240deg 300deg, #E6F1FB 300deg 360deg); transition: transform 1.5s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
+  .wheel-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); font-size: 20px; }
+  .score-table { width: 100%; border-collapse: collapse; }
+  .score-table th { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); text-align: left; padding: 8px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .score-table td { padding: 10px 12px; font-size: 14px; color: var(--color-text-primary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .score-table tr:last-child td { border-bottom: none; }
+  .rank-1 { background: #FAEEDA; }
+  .progress-bar { height: 4px; background: var(--color-background-secondary); border-radius: 2px; overflow: hidden; margin-bottom: 1rem; }
+  .progress-fill { height: 100%; background: #7F77DD; border-radius: 2px; transition: width 0.3s; }
+  .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .cat-btn { padding: 14px 8px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); text-align: center; cursor: pointer; font-size: 13px; color: var(--color-text-primary); background: var(--color-background-primary); transition: all 0.12s; }
+  .cat-btn:hover { border-color: #7F77DD; background: #EEEDFE; }
+  .cat-icon { font-size: 22px; margin-bottom: 6px; }
+  .timer-ring { display: inline-flex; align-items: center; gap: 6px; background: #FCEBEB; color: #A32D2D; font-size: 13px; padding: 4px 12px; border-radius: 20px; }
+  .dare-card { background: #FAECE7; border: 0.5px solid #F0997B; border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
+  .vote-bar { height: 8px; border-radius: 4px; background: #EEEDFE; overflow: hidden; margin: 6px 0; }
+  .vote-fill { height: 100%; background: #7F77DD; border-radius: 4px; transition: width 0.5s; }
+  .section-label { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); letter-spacing: 0.5px; margin-bottom: 8px; text-transform: uppercase; }
+  .badge { display: inline-block; font-size: 12px; padding: 2px 10px; border-radius: 12px; margin-right: 4px; }
+  .badge-fun { background: #E1F5EE; color: #0F6E56; }
+  .badge-dare { background: #FAECE7; color: #993C1D; }
+  .badge-heart { background: #FBEAF0; color: #993556; }
+  .badge-think { background: #EEEDFE; color: #534AB7; }
+  .flame { animation: pulse 1s infinite; display: inline-block; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+</style>
+
+<h2 class="sr-only">Party Game — trò chơi vui nhộn cho nhóm bạn</h2>
+
+<div class="party-app" id="app">
+
+  <!-- SCREEN 1: WELCOME -->
+  <div class="screen active" id="screen-welcome">
+    <div style="text-align:center; padding: 2rem 1rem;">
+      <div style="font-size:48px; margin-bottom:12px;">🎉</div>
+      <div class="title-big">Party Game Night</div>
+      <div class="subtitle">Trò chơi vui nhộn cho cả nhóm bạn</div>
+      <div class="category-grid" style="max-width:400px; margin: 0 auto 2rem;">
+        <div class="cat-btn" onclick="selectMode('truth')"><div class="cat-icon">💬</div>Thật hay Thách</div>
+        <div class="cat-btn" onclick="selectMode('quiz')"><div class="cat-icon">🧠</div>Câu đố vui</div>
+        <div class="cat-btn" onclick="selectMode('dare')"><div class="cat-icon">🔥</div>Thử thách</div>
+        <div class="cat-btn" onclick="selectMode('story')"><div class="cat-icon">💭</div>Chia sẻ tâm sự</div>
+        <div class="cat-btn" onclick="selectMode('vote')"><div class="cat-icon">🗳️</div>Ai trong nhóm?</div>
+        <div class="cat-btn" onclick="selectMode('mix')"><div class="cat-icon">🎲</div>Hỗn hợp</div>
+      </div>
+      <div style="font-size:13px; color:var(--color-text-secondary);">Chọn chế độ để bắt đầu</div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: SETUP PLAYERS -->
+  <div class="screen" id="screen-setup">
+    <div style="max-width:480px; margin:0 auto; padding: 1rem;">
+      <div class="title-big" style="font-size:20px; text-align:left; margin-bottom:4px;" id="mode-title-display">🎲 Hỗn hợp</div>
+      <div class="subtitle" style="text-align:left; margin-bottom:1.5rem;">Thêm tên người chơi vào</div>
+      <div class="section-label">người chơi</div>
+      <div class="chip-area" id="chip-area">
+        <div style="color:var(--color-text-tertiary); font-size:13px; padding:4px;" id="empty-hint">Chưa có ai... thêm bạn bè vào nào!</div>
+      </div>
+      <div class="input-row">
+        <input type="text" id="player-input" placeholder="Tên bạn..." maxlength="20" onkeydown="if(event.key==='Enter')addPlayer()" />
+        <button class="btn btn-primary" onclick="addPlayer()"><i class="ti ti-plus" aria-hidden="true"></i></button>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="showScreen('screen-welcome')"><i class="ti ti-arrow-left" aria-hidden="true"></i> Quay lại</button>
+        <button class="btn btn-primary" onclick="startGame()">Bắt đầu thôi! <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: GAME PLAY -->
+  <div class="screen" id="screen-game">
+    <div style="max-width:520px; margin:0 auto; padding: 1rem;">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="game-header">
+        <div class="round-badge" id="round-display">Lượt 1 / 10</div>
+        <div class="player-turn" id="player-turn-display">Lượt của: <span style="color:#7F77DD"></span></div>
+      </div>
+
+      <div class="question-card" id="question-card">
+        <div class="question-type" id="q-type-display"></div>
+        <div class="question-text" id="q-text-display">Nhấn nút bên dưới để bốc câu hỏi!</div>
+      </div>
+
+      <div id="vote-section" style="display:none; margin-bottom:1rem;">
+        <div class="section-label">Bỏ phiếu</div>
+        <div id="vote-options"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" onclick="skipQuestion()"><i class="ti ti-refresh" aria-hidden="true"></i> Câu khác</button>
+        <button class="btn btn-primary" onclick="nextQuestion()" id="next-btn">Câu hỏi tiếp <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+      </div>
+      <div style="text-align:center; margin-top:1rem;">
+        <button class="btn" style="font-size:13px; padding:6px 16px;" onclick="showScreen('screen-score')"><i class="ti ti-chart-bar" aria-hidden="true"></i> Xem điểm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: SCORE -->
+  <div class="screen" id="screen-score">
+    <div style="max-width:480px; margin:0 auto; padding:1rem;">
+      <div class="title-big" style="font-size:20px; margin-bottom:4px;">Bảng điểm</div>
+      <div class="subtitle" style="margin-bottom:1.5rem;" id="score-subtitle">Trò chơi đang diễn ra...</div>
+      <table class="score-table">
+        <thead><tr><th>#</th><th>Người chơi</th><th>Điểm</th><th>Câu trả lời</th></tr></thead>
+        <tbody id="score-body"></tbody>
+      </table>
+      <div class="btn-row">
+        <button class="btn" onclick="continueGame()"><i class="ti ti-arrow-left" aria-hidden="true"></i> Chơi tiếp</button>
+        <button class="btn btn-primary" onclick="endGame()"><i class="ti ti-trophy" aria-hidden="true"></i> Kết thúc</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: END -->
+  <div class="screen" id="screen-end">
+    <div style="max-width:480px; margin:0 auto; padding:2rem 1rem; text-align:center;">
+      <div style="font-size:52px; margin-bottom:1rem;" id="winner-emoji">🏆</div>
+      <div class="title-big" id="winner-text">Người chiến thắng!</div>
+      <div class="subtitle" id="winner-sub">Chúc mừng!</div>
+      <div style="background:var(--color-background-secondary); border-radius:var(--border-radius-lg); padding:1.5rem; margin:1.5rem 0;" id="final-score-area"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="resetGame()"><i class="ti ti-refresh" aria-hidden="true"></i> Chơi lại</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const COLORS = ['#7F77DD','#1D9E75','#D85A30','#D4537E','#378ADD','#BA7517','#E24B4A','#0F6E56'];
+
+const QUESTIONS = {
+  truth: [
+    {text:"Điều bí mật nào về bạn mà nhóm này chưa biết? 🤫", badge:"heart"},
+    {text:"Nếu được chọn lại, bạn có làm lại công việc/ngành học hiện tại không? 🤔", badge:"think"},
+    {text:"Kể về lần bạn xấu hổ nhất trong cuộc đời 😳", badge:"fun"},
+    {text:"Bạn thích ai nhất trong nhóm này và vì sao? (Phải nói thật!) ❤️", badge:"heart"},
+    {text:"Điều gì khiến bạn hạnh phúc nhất trong 3 tháng gần đây? 🌈", badge:"heart"},
+    {text:"Nếu có 1 tuần không cần lo tiền, bạn sẽ làm gì? ✈️", badge:"fun"},
+    {text:"Sợ nhất điều gì trong cuộc sống hiện tại? 😰", badge:"heart"},
+    {text:"Điều bạn hối tiếc nhất trong năm qua là gì? 💭", badge:"heart"},
+    {text:"Nếu được 1 siêu năng lực trong 1 ngày, bạn muốn gì? 🦸", badge:"fun"},
+    {text:"Kể một điều tốt bạn đã làm nhưng chưa kể với ai 😇", badge:"heart"},
+    {text:"Bạn đã từng nói dối ai trong nhóm này chưa? Nói dối gì? 🤥", badge:"dare"},
+    {text:"Điều bạn muốn thay đổi ở bản thân nhất là gì? 🌱", badge:"think"},
+    {text:"Nếu biết thế giới kết thúc vào ngày mai, bạn sẽ làm gì hôm nay? 🌅", badge:"think"},
+    {text:"Người nào trong cuộc sống này ảnh hưởng nhất đến bạn? 👑", badge:"heart"},
+    {text:"Kể về giấc mơ kỳ lạ nhất bạn từng có 🌙", badge:"fun"},
+    {text:"Bạn đã từng làm gì khiến bố mẹ không biết đến bây giờ? 😂", badge:"fun"},
+    {text:"Điều bạn muốn nói với bản thân của 5 năm trước là gì? 📮", badge:"think"},
+    {text:"Mô tả cuộc sống lý tưởng của bạn trong 1 câu 🏡", badge:"heart"},
+    {text:"Bạn có điều gì muốn tha thứ cho ai đó nhưng chưa nói không? 🕊️", badge:"heart"},
+    {text:"Kể về lần bạn dũng cảm nhất trong cuộc đời 💪", badge:"heart"},
+  ],
+  quiz: [
+    {text:"Đố vui: Con gì khi đi thì ngồi, khi đứng thì nằm, khi ngồi thì đứng? 🐕 (Chó)", badge:"fun"},
+    {text:"Trắc nghiệm vui: Bạn là loài động vật nào? Mỗi người tự chọn và giải thích 🦊", badge:"fun"},
+    {text:"Mini quiz: Kể 5 điều bạn yêu thích về mùa hè trong 30 giây! ☀️", badge:"fun"},
+    {text:"Thách thức: Ai trong nhóm đoán đúng năm sinh của người ngồi bên phải? 🎂", badge:"fun"},
+    {text:"Đố vui: Thứ gì chạy mãi không mệt, không cần ăn không cần uống? ⏰ (Đồng hồ)", badge:"fun"},
+    {text:"Ai đoán được sở thích bí mật của người chơi trước? 🎯", badge:"fun"},
+    {text:"Thi nhanh: Kể tên 10 loài hoa trong 20 giây! 🌸", badge:"fun"},
+    {text:"Mini game: Mỗi người nói 1 điều ít ai biết về mình — ai nghe thú vị nhất thắng! 🏅", badge:"fun"},
+    {text:"Đoán tên bài hát: Host hát nhẩm 5 nốt đầu, cả nhóm đoán 🎵", badge:"fun"},
+    {text:"Thử thách trí nhớ: Ai nhớ được ngày sinh nhật nhiều người trong nhóm nhất? 🎁", badge:"fun"},
+    {text:"Luật vui: Ai cười đầu tiên phải hát 1 câu bài hát tùy chọn 🎤", badge:"dare"},
+    {text:"Câu đố: Có 3 quả táo, bạn lấy 2 quả, bạn có mấy quả? (2 quả — bạn LẤY) 🍎", badge:"fun"},
+    {text:"Thi kể chuyện: Mỗi người nói 1 câu, cả nhóm tạo ra 1 câu chuyện liên tiếp! 📖", badge:"fun"},
+    {text:"Đố vui: Thứ gì có răng mà không cào? 🪮 (Cái lược)", badge:"fun"},
+    {text:"Mini game: Ai bắt chước giọng nói của người nổi tiếng giống nhất? 🎭", badge:"fun"},
+  ],
+  dare: [
+    {text:"Thử thách: Làm 10 cái nhảy jumping jack ngay bây giờ! 🏃", badge:"dare"},
+    {text:"Thử thách: Kể 1 câu chuyện cười trong 1 phút — mọi người chấm điểm! 😂", badge:"dare"},
+    {text:"Thử thách: Gọi điện cho người thân nhất và nói 'Tôi yêu bạn' rồi cúp máy 📱", badge:"dare"},
+    {text:"Thử thách: Nói chuyện với giọng miền khác trong 5 phút tiếp theo 🗣️", badge:"dare"},
+    {text:"Thử thách: Không được cười trong 1 phút — cả nhóm cố làm bạn cười 😁", badge:"dare"},
+    {text:"Thử thách: Uống 1 ly nước lạnh trong 3 giây 🥶", badge:"dare"},
+    {text:"Thử thách: Đứng 1 chân trong 1 phút mà không đổ 🦩", badge:"dare"},
+    {text:"Thử thách: Vỗ tay 20 cái trong 10 giây 👏", badge:"dare"},
+    {text:"Thử thách: Tìm 3 điểm chung thú vị giữa bạn và người ngồi bên phải trong 1 phút 🤝", badge:"dare"},
+    {text:"Thử thách: Hát 1 đoạn bài hát mà không biết lời — chỉ được la la la 🎶", badge:"dare"},
+    {text:"Thử thách: Mô tả bộ phim yêu thích bằng 5 emoji — cả nhóm đoán 🎬", badge:"dare"},
+    {text:"Thử thách: Nhắn tin cho người bạn lâu chưa liên lạc trong vòng 1 phút 💌", badge:"dare"},
+    {text:"Thử thách: Nói 1 lời khen thật lòng đến từng người trong nhóm 🌟", badge:"dare"},
+    {text:"Thử thách: Diễn lại 1 scene phim quen thuộc với 1 người trong nhóm chọn 🎭", badge:"dare"},
+    {text:"Thử thách: Ăn thứ gì đó cay nhất trong túi/nhà bếp hiện có 🌶️", badge:"dare"},
+    {text:"Thử thách: Thay đổi avatar hoặc story với ảnh buồn cười nhất từ máy ảnh 📸", badge:"dare"},
+    {text:"Thử thách: Nhảy theo bài hát cả nhóm chọn trong 30 giây 🕺", badge:"dare"},
+    {text:"Thử thách: Giữ mặt nghiêm túc khi cả nhóm làm trò hề với bạn 😐", badge:"dare"},
+  ],
+  story: [
+    {text:"Chia sẻ: Thời điểm nào trong cuộc đời bạn cảm thấy cô đơn nhất và bạn đã vượt qua thế nào? 🌙", badge:"heart"},
+    {text:"Chia sẻ: Điều gì đang làm bạn stress nhất hiện tại? Cả nhóm cùng lắng nghe và góp ý 💙", badge:"heart"},
+    {text:"Chia sẻ: Người bạn thầm ơn nhất trong cuộc đời nhưng chưa bao giờ nói ra 🙏", badge:"heart"},
+    {text:"Chia sẻ: Kể về 1 lần thất bại và điều bạn học được từ đó 🌱", badge:"think"},
+    {text:"Chia sẻ: Kỷ niệm đẹp nhất của bạn với nhóm bạn này là gì? 🎊", badge:"heart"},
+    {text:"Chia sẻ: Bạn đang theo đuổi giấc mơ gì? Nhóm có thể giúp gì được không? ⭐", badge:"heart"},
+    {text:"Chia sẻ: Điều bạn muốn nghe từ người thân/bạn bè nhất lúc này là gì? 🤗", badge:"heart"},
+    {text:"Chia sẻ: Nếu có thể quay lại 1 khoảnh khắc trong quá khứ, bạn chọn lúc nào? 🕰️", badge:"think"},
+    {text:"Chia sẻ: Điều bạn tự hào nhất về bản thân trong năm nay? 🏆", badge:"heart"},
+    {text:"Chia sẻ: Mối quan hệ nào trong cuộc đời bạn đang cần được chú ý hơn? 🌿", badge:"heart"},
+    {text:"Chia sẻ: Bạn định nghĩa hạnh phúc như thế nào? So sánh với 3 năm trước 💫", badge:"think"},
+    {text:"Chia sẻ: Điều gì khiến bạn cảm thấy sống có ý nghĩa nhất? 🔥", badge:"think"},
+    {text:"Chia sẻ: Lần cuối bạn làm gì thật sự cho chính mình là khi nào? 🧡", badge:"heart"},
+    {text:"Chia sẻ: Bạn muốn nhóm bạn này cùng nhau làm gì trong 1 năm tới? 🗺️", badge:"heart"},
+    {text:"Chia sẻ: Câu nói/lời khuyên nào đã thay đổi cách nhìn cuộc sống của bạn? 📖", badge:"think"},
+  ],
+  vote: [
+    {text:"🗳️ Bình chọn: Ai trong nhóm sẽ nổi tiếng nhất trong 10 năm tới? Cả nhóm giơ tay!", badge:"fun"},
+    {text:"🗳️ Bình chọn: Ai trong nhóm ngủ nhiều nhất? Kết quả có đúng không? 😴", badge:"fun"},
+    {text:"🗳️ Bình chọn: Ai là người giữ bí mật kém nhất trong nhóm? 🤐", badge:"fun"},
+    {text:"🗳️ Bình chọn: Ai sẽ kết hôn đầu tiên trong nhóm? 💒", badge:"fun"},
+    {text:"🗳️ Bình chọn: Ai là người hay cười nhất khi không nên cười? 😂", badge:"fun"},
+    {text:"🗳️ Bình chọn: Ai trong nhóm được cho là 'thánh ăn' nhất? 🍜", badge:"fun"},
+    {text:"🗳️ Bình chọn: Ai trong nhóm sẽ là tỷ phú đầu tiên? 💰", badge:"fun"},
+    {text:"🗳️ Bình chọn: Ai trong nhóm hay hẹn giờ nhưng trễ nhất? ⏰", badge:"fun"},
+    {text:"🗳️ Bình chọn: Ai là người gây cười nhiều nhất trong buổi hôm nay? 🎭", badge:"fun"},
+    {text:"🗳️ Bình chọn: Ai trong nhóm có style thời trang 'độc' nhất? 👗", badge:"fun"},
+  ]
+};
+
+let state = {
+  mode: 'mix',
+  players: [],
+  currentPlayerIndex: 0,
+  currentRound: 1,
+  totalRounds: 20,
+  scores: {},
+  answered: {},
+  questionPool: [],
+  usedQuestions: [],
+  currentQuestion: null,
+  gameStarted: false,
+  voteActive: false,
+  voteResults: {}
+};
+
+function selectMode(mode) {
+  state.mode = mode;
+  const titles = {
+    truth: '💬 Thật hay Thách', quiz: '🧠 Câu đố vui',
+    dare: '🔥 Thử thách', story: '💭 Chia sẻ tâm sự',
+    vote: '🗳️ Ai trong nhóm?', mix: '🎲 Hỗn hợp tất cả'
+  };
+  document.getElementById('mode-title-display').textContent = titles[mode];
+  showScreen('screen-setup');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'screen-score') renderScoreTable();
+}
+
+function addPlayer() {
+  const input = document.getElementById('player-input');
+  const name = input.value.trim();
+  if (!name || state.players.includes(name)) { input.focus(); return; }
+  state.players.push(name);
+  state.scores[name] = 0;
+  state.answered[name] = 0;
+  renderChips();
+  input.value = '';
+  input.focus();
+}
+
+function removePlayer(name) {
+  state.players = state.players.filter(p => p !== name);
+  delete state.scores[name];
+  delete state.answered[name];
+  renderChips();
+}
+
+function renderChips() {
+  const area = document.getElementById('chip-area');
+  const hint = document.getElementById('empty-hint');
+  if (state.players.length === 0) {
+    area.innerHTML = '<div style="color:var(--color-text-tertiary); font-size:13px; padding:4px;" id="empty-hint">Chưa có ai... thêm bạn bè vào nào!</div>';
+    return;
+  }
+  area.innerHTML = state.players.map((p,i) =>
+    `<span class="player-chip">
+      <span class="player-avatar" style="background:${COLORS[i%COLORS.length]}">${p[0].toUpperCase()}</span>
+      ${p}<span class="player-remove" onclick="removePlayer('${p}')">&times;</span>
+    </span>`
+  ).join('');
+}
+
+function buildQuestionPool() {
+  let pool = [];
+  if (state.mode === 'mix') {
+    Object.values(QUESTIONS).forEach(qs => pool = pool.concat(qs));
+  } else {
+    pool = [...QUESTIONS[state.mode]];
+  }
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool;
+}
+
+function startGame() {
+  if (state.players.length < 2) {
+    alert('Cần ít nhất 2 người chơi!');
+    return;
+  }
+  state.currentPlayerIndex = 0;
+  state.currentRound = 1;
+  state.totalRounds = Math.max(state.players.length * 4, 20);
+  state.players.forEach(p => { state.scores[p] = 0; state.answered[p] = 0; });
+  state.questionPool = buildQuestionPool();
+  state.usedQuestions = [];
+  state.gameStarted = true;
+  showScreen('screen-game');
+  loadQuestion();
+}
+
+function getNextQuestion() {
+  if (state.questionPool.length === 0) {
+    state.questionPool = buildQuestionPool();
+  }
+  return state.questionPool.shift();
+}
+
+function loadQuestion() {
+  const q = getNextQuestion();
+  state.currentQuestion = q;
+  const player = state.players[state.currentPlayerIndex];
+  const round = state.currentRound;
+
+  document.getElementById('round-display').textContent = `Lượt ${round} / ${state.totalRounds}`;
+  document.getElementById('player-turn-display').innerHTML = `Lượt của: <span style="color:#7F77DD; font-weight:500">${player}</span>`;
+  
+  const fill = Math.round((round / state.totalRounds) * 100);
+  document.getElementById('progress-fill').style.width = fill + '%';
+
+  const typeLabels = {fun:'🎉 Câu đố vui', dare:'🔥 Thử thách', heart:'💙 Chia sẻ', think:'💭 Suy nghĩ'};
+  document.getElementById('q-type-display').textContent = typeLabels[q.badge] || '🎲';
+  document.getElementById('q-text-display').textContent = q.text;
+
+  const voteSection = document.getElementById('vote-section');
+  if (q.badge === 'fun' && q.text.includes('🗳️')) {
+    voteSection.style.display = 'block';
+    renderVoteOptions(player);
+    state.voteActive = true;
+  } else {
+    voteSection.style.display = 'none';
+    state.voteActive = false;
+  }
+
+  document.getElementById('next-btn').textContent = 'Câu tiếp theo →';
+}
+
+function renderVoteOptions(excludePlayer) {
+  const opts = document.getElementById('vote-options');
+  const votable = state.players;
+  const votes = {};
+  votable.forEach(p => votes[p] = 0);
+
+  opts.innerHTML = votable.map((p,i) => `
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; cursor:pointer;" onclick="castVote('${p}', this)" data-player="${p}">
+      <span class="player-avatar" style="background:${COLORS[i%COLORS.length]};width:28px;height:28px;font-size:12px;flex-shrink:0">${p[0].toUpperCase()}</span>
+      <span style="font-size:14px; flex:1">${p}</span>
+      <span style="font-size:13px; color:var(--color-text-secondary);" id="vote-count-${p}">0 phiếu</span>
+    </div>
+  `).join('');
+  state.voteResults = votes;
+}
+
+function castVote(player, el) {
+  state.voteResults[player] = (state.voteResults[player] || 0) + 1;
+  document.getElementById('vote-count-' + player).textContent = state.voteResults[player] + ' phiếu';
+  el.style.background = 'var(--color-background-secondary)';
+  el.style.borderRadius = '8px';
+}
+
+function nextQuestion() {
+  const player = state.players[state.currentPlayerIndex];
+  state.scores[player] += 10;
+  state.answered[player] += 1;
+  advanceRound();
+}
+
+function skipQuestion() {
+  advanceRound();
+}
+
+function advanceRound() {
+  state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+  state.currentRound += 1;
+  if (state.currentRound > state.totalRounds) {
+    showScreen('screen-end');
+    renderEnd();
+  } else {
+    loadQuestion();
+  }
+}
+
+function renderScoreTable() {
+  const sorted = [...state.players].sort((a,b) => state.scores[b] - state.scores[a]);
+  const body = document.getElementById('score-body');
+  body.innerHTML = sorted.map((p,i) => {
+    const rowClass = i === 0 ? 'rank-1' : '';
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1)+'';
+    return `<tr class="${rowClass}">
+      <td>${medal}</td>
+      <td><span class="player-avatar" style="background:${COLORS[state.players.indexOf(p)%COLORS.length]};display:inline-flex;width:22px;height:22px;font-size:10px;margin-right:6px">${p[0].toUpperCase()}</span>${p}</td>
+      <td><strong>${state.scores[p]}</strong></td>
+      <td style="color:var(--color-text-secondary)">${state.answered[p]} câu</td>
+    </tr>`;
+  }).join('');
+  const total = state.currentRound - 1;
+  document.getElementById('score-subtitle').textContent = `Đã chơi ${total} / ${state.totalRounds} lượt`;
+}
+
+function continueGame() {
+  if (state.currentRound > state.totalRounds) {
+    renderEnd(); showScreen('screen-end');
+  } else {
+    showScreen('screen-game');
+  }
+}
+
+function endGame() {
+  renderEnd();
+  showScreen('screen-end');
+}
+
+function renderEnd() {
+  const sorted = [...state.players].sort((a,b) => state.scores[b] - state.scores[a]);
+  const winner = sorted[0];
+  const emojis = ['🏆','🎉','🌟','🎊','👑'];
+  document.getElementById('winner-emoji').textContent = emojis[Math.floor(Math.random()*emojis.length)];
+  document.getElementById('winner-text').textContent = `${winner} thắng rồi!`;
+  document.getElementById('winner-sub').textContent = `${state.scores[winner]} điểm — xuất sắc nhất buổi tối!`;
+  const area = document.getElementById('final-score-area');
+  area.innerHTML = sorted.map((p,i) => {
+    const medals = ['🥇','🥈','🥉'];
+    return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
+      <span style="font-size:18px">${medals[i]||'  '}</span>
+      <span class="player-avatar" style="background:${COLORS[state.players.indexOf(p)%COLORS.length]};width:30px;height:30px;font-size:12px">${p[0].toUpperCase()}</span>
+      <span style="flex:1;font-size:15px">${p}</span>
+      <span style="font-weight:500;color:#7F77DD">${state.scores[p]}đ</span>
+    </div>`;
+  }).join('');
+}
+
+function resetGame() {
+  state = {
+    mode: 'mix', players: [], currentPlayerIndex: 0, currentRound: 1,
+    totalRounds: 20, scores: {}, answered: {}, questionPool: [],
+    usedQuestions: [], currentQuestion: null, gameStarted: false,
+    voteActive: false, voteResults: {}
+  };
+  showScreen('screen-welcome');
+}
+</script>

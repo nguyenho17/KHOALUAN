@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html class="light" lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Đăng nhập | ChatBot AI Luật Hôn Nhân</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#002045",
+                        "primary-container": "#1a365d",
+                        "secondary": "#48626e",
+                        "secondary-container": "#cbe7f5",
+                        "surface": "#f8f9fa",
+                        "surface-container-low": "#f3f4f5",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-surface": "#191c1d",
+                        "on-surface-variant": "#43474e",
+                        "outline-variant": "#c4c6cf",
+                    },
+                    fontFamily: {
+                        sans: ['Be Vietnam Pro', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: #f8f9fa; color: #191c1d; }
+        .primary-gradient { background: linear-gradient(135deg, #002045 0%, #1a365d 100%); }
+        .ambient-shadow { box-shadow: 0 20px 40px rgba(0, 32, 69, 0.06); }
+        .ghost-border { border: 1px solid rgba(196, 198, 207, 0.15); }
+        
+        /* Ẩn icon mắt mặc định của trình duyệt trên input password */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col selection:bg-secondary-container">
+
+<main class="flex-grow flex relative overflow-hidden min-h-screen">
+    
+    <div class="hidden lg:block lg:w-[55%] relative overflow-hidden">
+        <div class="absolute inset-0 bg-primary/80 mix-blend-multiply z-10"></div>
+        <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=1500&auto=format&fit=crop" alt="Law Scale" class="absolute inset-0 object-cover w-full h-full"/>
+        
+        <div class="absolute inset-0 z-20 flex flex-col justify-end p-16 bg-gradient-to-t from-primary via-primary/60 to-transparent">
+            <a href="trangchu.html" class="block hover:opacity-90 transition-opacity max-w-xl">
+                <h1 class="text-[3.5rem] font-extrabold text-white tracking-tight leading-tight mb-2">
+                    ChatBot AI
+                </h1>
+                <p class="text-[12px] text-white/70 uppercase tracking-[0.2em] font-bold mb-4">Luật Hôn Nhân và Gia Đình</p>
+                <p class="text-secondary-container text-lg font-medium opacity-90 leading-relaxed">
+                    <strong class="text-white">Được tư vấn bởi Luật Sư AI.</strong> Đồng hành cùng gia đình Việt bằng sự thấu cảm và nền tảng pháp lý vững chắc. Chúng tôi bảo vệ tương lai của bạn.
+                </p>
+            </a>
+            
+            <div class="mt-10 flex gap-8">
+                <div class="flex items-center gap-3 text-white">
+                    <span class="material-symbols-outlined text-secondary-container" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                    <span class="text-sm font-bold tracking-wide">Bảo mật tuyệt đối</span>
+                </div>
+                <div class="flex items-center gap-3 text-white">
+                    <span class="material-symbols-outlined text-secondary-container" style="font-variation-settings: 'FILL' 1;">gavel</span>
+                    <span class="text-sm font-bold tracking-wide">Tư vấn chuyên gia</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full lg:w-[45%] flex items-center justify-center p-8 sm:p-12 bg-white lg:bg-surface">
+        <div class="w-full max-w-md space-y-8">
+            
+            <a href="trangchu.html" class="lg:hidden flex flex-col items-center mb-10 hover:opacity-80 transition-opacity">
+                <div class="text-primary font-extrabold text-3xl tracking-tight mb-1">ChatBot AI</div>
+                <div class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] font-bold">Luật Hôn Nhân và Gia Đình</div>
+            </a>
+
+            <header class="space-y-2">
+                <h2 class="text-[2rem] font-extrabold text-primary tracking-tight">Chào mừng trở lại</h2>
+                <p class="text-on-surface-variant font-medium text-sm">Vui lòng nhập thông tin để tiếp tục buổi tư vấn.</p>
+            </header>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button class="flex items-center justify-center gap-3 px-4 py-3.5 bg-surface-container-lowest rounded-xl ambient-shadow ghost-border hover:bg-surface-container-low transition-all duration-300">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5"/>
+                    <span class="text-sm font-bold text-on-surface">Google</span>
+                </button>
+                <button class="flex items-center justify-center gap-3 px-4 py-3.5 bg-surface-container-lowest rounded-xl ambient-shadow ghost-border hover:bg-surface-container-low transition-all duration-300">
+                    <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" class="w-5 h-5"/>
+                    <span class="text-sm font-bold text-on-surface">Facebook</span>
+                </button>
+            </div>
+
+            <div class="relative flex items-center py-2">
+                <div class="flex-grow border-t ghost-border"></div>
+                <span class="flex-shrink mx-4 text-on-surface-variant/50 text-[10px] font-bold uppercase tracking-widest">hoặc đăng nhập bằng email</span>
+                <div class="flex-grow border-t ghost-border"></div>
+            </div>
+
+            <form id="loginForm" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="username">Tên đăng nhập (Email/SĐT)</label>
+                    <div class="relative">
+                        <input type="text" id="username" required placeholder="Nhập tên đăng nhập..." 
+                               class="w-full px-4 py-4 bg-surface-container-low border-b-2 border-transparent focus:border-primary focus:bg-surface-container-lowest focus:ring-0 rounded-t-xl transition-all outline-none text-on-surface font-medium placeholder:text-on-surface-variant/40"/>
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50">alternate_email</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider" for="password">Mật khẩu</label>
+                    <div class="relative">
+                        <input type="password" id="password" required placeholder="••••••••" 
+                               class="w-full px-4 py-4 bg-surface-container-low border-b-2 border-transparent focus:border-primary focus:bg-surface-container-lowest focus:ring-0 rounded-t-xl transition-all outline-none text-on-surface font-medium placeholder:text-on-surface-variant/40"/>
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 cursor-pointer hover:text-primary transition-colors">visibility</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                    <label class="flex items-center cursor-pointer group">
+                        <input type="checkbox" class="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary/20 transition-all cursor-pointer"/>
+                        <span class="ml-2 text-sm font-medium text-on-surface-variant group-hover:text-primary transition-colors">Ghi nhớ đăng nhập</span>
+                    </label>
+                    <a href="quenmatkhau.html" class="text-sm font-bold text-primary hover:underline transition-all">Quên mật khẩu?</a>
+                </div>
+
+                <div id="error-message" style="display: none;" class="text-red-500 text-sm font-medium text-center bg-red-50 p-2 rounded-lg border border-red-100"></div>
+
+                <button type="submit" class="w-full primary-gradient text-white py-4 mt-4 rounded-xl font-bold text-base shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-300">
+                    Đăng nhập vào hệ thống
+                </button>
+            </form>
+
+            <footer class="text-center pt-6">
+                <p class="text-on-surface-variant font-medium text-sm">
+                    Chưa có tài khoản? 
+                    <a href="dangky.html" class="text-primary font-extrabold hover:underline transition-all ml-1">Đăng ký ngay</a>
+                </p>
+            </footer>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-surface py-8 border-t ghost-border">
+    <div class="max-w-[1400px] mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-on-surface-variant">
+        <div class="text-[11px] font-bold uppercase tracking-widest opacity-70">
+            © 2024 ChatBot AI. Bảo mật & Chuyên nghiệp.
+        </div>
+        <div class="flex gap-8">
+            <a href="#" class="text-[11px] font-bold uppercase tracking-widest opacity-70 hover:opacity-100 hover:text-primary transition-all">Điều khoản</a>
+            <a href="#" class="text-[11px] font-bold uppercase tracking-widest opacity-70 hover:opacity-100 hover:text-primary transition-all">Bảo mật</a>
+            <a href="#" class="text-[11px] font-bold uppercase tracking-widest opacity-70 hover:opacity-100 hover:text-primary transition-all">Liên hệ</a>
+        </div>
+    </div>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>
