@@ -1,6 +1,29 @@
-.env
+# Môi trường ảo Python
+.venv/
+venv/
+ENV/
+env/
+**/.env
+
+# Cache và các file hệ thống
 __pycache__/
 *.pyc
-venv/
+*.pyo
+*.pyd
+.Python
+.DS_Store
+Thumbs.db
+
+# Dữ liệu và Cơ sở dữ liệu
+*.db
+*.sqlite3
+*.csv
+*.json
+# Chặn các thư mục chứa vector database hoặc data thô nếu có
+data/
+chroma_db/
+faiss_index/
+
+# Cấu hình IDE
 .vscode/
-* text=auto
+.idea/
