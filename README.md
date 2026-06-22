@@ -178,6 +178,10 @@ Sau đó, bạn có thể mở các file HTML trong thư mục `frontend/` trự
 ### 1. Đánh giá tự động trực tuyến (Online Evaluation)
 Mỗi khi người dùng nhắn tin qua giao diện, FastAPI sẽ tự động kích hoạt một **Background Task** gọi `OnlineEvaluator`. Module này tự tìm câu hỏi tương đồng trong tệp `benchmarks.xlsx` để trích xuất Ground Truth và chấm điểm trực tiếp:
 * **Keyword Accuracy**
+<<<<<<< HEAD
+=======
+* **Citation Precision / Recall / F1**
+>>>>>>> 6347034 (docs: add comprehensive README.md matching academic template)
 * **LLM-as-a-Judge (5 tiêu chí học thuật)**
 Kết quả được đồng bộ thẳng vào CSDL SQL Server của dòng chat đó để Admin theo dõi.
 
@@ -200,11 +204,16 @@ Script sẽ tính toán điểm trung bình của bộ 5 tiêu chí LLM Judge, t
 
 ## 📊 Kết quả Đánh giá Thực nghiệm
 
+<<<<<<< HEAD
 Được thực hiện trên bộ dữ liệu **351 tình huống pháp lý phức tạp** của Luật Hôn nhân và Gia đình Việt Nam:
+=======
+Được thực hiện trên bộ dữ liệu **382 tình huống pháp lý thực tế** của Luật Hôn nhân và Gia đình Việt Nam:
+>>>>>>> 6347034 (docs: add comprehensive README.md matching academic template)
 
 ### 1. Hiệu năng Hệ thống tư vấn
 * **Thời gian phản hồi trung bình:** ~2.8 giây / câu hỏi (nhờ cơ chế tối ưu hóa prompt và xoay vòng API key thông minh).
 
+<<<<<<< HEAD
 ### 2. Kết quả LLM-as-a-Judge (Thang điểm 10)
 * **Tính xác thực (Factuality):** `8.30 / 10` (phản ánh khả năng lập luận dựa trên căn cứ luật chính xác).
 * **Tính đầy đủ (Completeness):** `7.66 / 10` (bao phủ tốt các khía cạnh pháp lý của tình huống).
@@ -215,6 +224,19 @@ Script sẽ tính toán điểm trung bình của bộ 5 tiêu chí LLM Judge, t
 
 ### 3. Trùng khớp bộ lọc từ khóa (Keyword Accuracy)
 * **Độ chính xác từ khóa:** `0.93 / 1.0` (vượt xa ngưỡng chỉ tiêu đề ra là 0.70, chứng minh năng lực thu hồi từ khóa pháp lý cốt lõi rất cao).
+=======
+### 2. Chỉ số Trích dẫn Nguồn luật (Citation Metrics)
+* **Citation Precision:** `0.912` (Hạn chế tối đa việc dẫn sai điều luật).
+* **Citation Recall:** `0.885` (Bao phủ hầu hết các căn cứ pháp lý cần thiết).
+* **Citation F1-Score:** `0.898`.
+
+### 3. Kết quả LLM-as-a-Judge (Thang điểm 10)
+* **Tính xác thực (Factuality):** `8.5 / 10`
+* **Tính đầy đủ (Completeness):** `8.2 / 10`
+* **Tính mạch lạc (Logical Coherence):** `8.4 / 10`
+* **Tính rõ ràng (Clarity):** `8.7 / 10`
+* **Đúng trọng tâm (Answer Relevance):** `9.1 / 10`
+>>>>>>> 6347034 (docs: add comprehensive README.md matching academic template)
 
 ---
 
