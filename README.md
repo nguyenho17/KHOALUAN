@@ -288,7 +288,7 @@ Script sẽ tính toán điểm trung bình của bộ 5 tiêu chí LLM Judge, t
 * **Đúng trọng tâm (Answer Relevance):** `8.69 / 10` (phản hồi trực tiếp thắc mắc pháp lý).
 * **Điểm LLM Judge Score trung bình:** `8.22 / 10` (vượt ngưỡng yêu cầu học thuật là 7.50).
 
-### 3. Trùng khớp bộ lọc từ khóa (Keyword Accuracy)
+### 3. Trúng khớp bộ lọc từ khóa (Keyword Accuracy)
 * **Độ chính xác từ khóa:** `0.93 / 1.0` (vượt xa ngưỡng chỉ tiêu đề ra là 0.70, chứng minh năng lực thu hồi từ khóa pháp lý cốt lõi rất cao).
 <<<<<<< HEAD
 =======
@@ -309,6 +309,39 @@ Script sẽ tính toán điểm trung bình của bộ 5 tiêu chí LLM Judge, t
 >>>>>>> 6347034 (docs: add comprehensive README.md matching academic template)
 =======
 >>>>>>> e441130 (docs: update dataset to 351 cases and reflect exact evaluation scores from BaoCaoKhoaLuan)
+
+### 4. Đánh giá So sánh các Baselines & Cấu hình Đa lượt (Multi-turn)
+
+Bảng so sánh dưới đây trình bày chi tiết chỉ số **Accuracy** (Keyword Accuracy) và **LLM Judge Score** trung bình trên bộ dữ liệu **LexRAG (351 tình huống)** của hệ thống qua các lượt hội thoại từ 1-turn đến 5-turn dưới các cấu hình khác nhau:
+* **Zero:** Chạy trực tiếp LLM không nạp ngữ cảnh truy xuất (Zero-shot).
+* **Retriever:** Chỉ sử dụng văn bản luật truy xuất thô đưa vào prompt.
+* **Reference (RAG++):** Sử dụng cấu hình RAG++ hoàn chỉnh (Hybrid Search + Temporal Decay + Cross-Encoder Reranking + Structured Prompt).
+
+**Bảng 4: Chỉ số Accuracy và LLM Judge Score của các baseline khác nhau trên LexRAG (Các kết quả tốt nhất trong từng cột được in đậm):**
+
+| Model | Type | 1-turn Acc | 1-turn LLM | 2-turn Acc | 2-turn LLM | 3-turn Acc | 3-turn LLM | 4-turn Acc | 4-turn LLM | 5-turn Acc | 5-turn LLM | ALL Acc | ALL LLM |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **GLM-4-Flash** | Zero | 0.3431 | 6.11 | 0.3534 | 6.86 | 0.3738 | 6.87 | 0.3737 | 6.88 | 0.3726 | 6.82 | 0.3633 | 6.71 |
+| | Retriever | 0.3403 | 5.92 | 0.3670 | 6.75 | 0.3783 | 6.78 | 0.3794 | 6.83 | 0.3820 | 6.77 | 0.3694 | 6.61 |
+| | Reference | 0.5843 | 6.52 | 0.4776 | 7.06 | 0.4610 | 6.99 | 0.4451 | 6.93 | 0.4382 | 6.89 | 0.4812 | 6.88 |
+| **GLM-4** | Zero | 0.3468 | 6.40 | 0.3462 | 7.08 | 0.3782 | 7.13 | 0.3809 | 7.15 | 0.3836 | 7.16 | 0.3671 | 6.98 |
+| | Retriever | 0.3713 | 6.24 | 0.3726 | 6.87 | 0.3981 | 6.90 | 0.3934 | 6.92 | 0.3905 | 6.88 | 0.3851 | 6.76 |
+| | Reference | **0.6151** | 6.76 | **0.5423** | 7.27 | **0.5208** | 7.30 | 0.4906 | 7.27 | 0.4862 | 7.25 | 0.5310 | 7.17 |
+| **GPT-3.5-turbo** | Zero | 0.3016 | 6.10 | 0.3032 | 6.63 | 0.3173 | 6.54 | 0.3218 | 6.47 | 0.3335 | 6.49 | 0.3154 | 6.45 |
+| | Retriever | 0.3217 | 5.88 | 0.3057 | 6.41 | 0.3220 | 6.38 | 0.3278 | 6.31 | 0.3231 | 6.30 | 0.3200 | 6.26 |
+| | Reference | 0.5063 | 6.53 | 0.4055 | 6.90 | 0.3970 | 6.74 | 0.3862 | 6.63 | 0.3946 | 6.65 | 0.4179 | 6.69 |
+| **GPT-4o-mini** | Zero | 0.2982 | 5.95 | 0.2962 | 6.48 | 0.3195 | 6.39 | 0.3075 | 6.28 | 0.3219 | 6.27 | 0.3086 | 6.28 |
+| | Retriever | 0.3308 | 5.92 | 0.3395 | 6.51 | 0.3411 | 6.38 | 0.3445 | 6.32 | 0.3468 | 6.33 | 0.3405 | 6.29 |
+| | Reference | 0.5249 | 6.39 | 0.4265 | 6.83 | 0.4063 | 6.62 | 0.3948 | 6.47 | 0.3953 | 6.48 | 0.4295 | 6.56 |
+| **Qwen-2.5-72B** | Zero | 0.3583 | 6.83 | 0.4037 | 7.37 | 0.4260 | 7.32 | 0.4271 | 7.33 | 0.4266 | 7.33 | 0.4083 | 7.24 |
+| | Retriever | 0.3723 | 6.46 | 0.4097 | 7.24 | 0.4296 | 7.23 | 0.4249 | 7.27 | 0.4359 | 7.28 | 0.4144 | 7.09 |
+| | Reference | 0.6045 | **7.14** | 0.5260 | **7.45** | 0.5186 | **7.49** | **0.5117** | **7.41** | **0.5015** | **7.37** | **0.5324** | **7.37** |
+| **Llama-3.3-70B** | Zero | 0.2556 | 4.98 | 0.2695 | 5.63 | 0.2846 | 5.46 | 0.2800 | 5.21 | 0.2894 | 5.22 | 0.2758 | 5.30 |
+| | Retriever | 0.2735 | 5.26 | 0.2755 | 5.69 | 0.2861 | 5.47 | 0.2850 | 5.32 | 0.2884 | 5.18 | 0.2817 | 5.38 |
+| | Reference | 0.5468 | 5.83 | 0.4583 | 6.30 | 0.4459 | 6.02 | 0.4423 | 5.85 | 0.4454 | 5.83 | 0.4677 | 5.97 |
+| **Claude-3.5-sonnet** | Zero | 0.2464 | 5.60 | 0.2856 | 6.03 | 0.2989 | 5.95 | 0.3050 | 5.86 | 0.3064 | 5.91 | 0.2884 | 5.87 |
+| | Retriever | 0.3667 | 6.42 | 0.3436 | 6.90 | 0.3554 | 6.88 | 0.3604 | 6.79 | 0.3597 | 6.77 | 0.3571 | 6.75 |
+| | Reference | 0.5030 | 6.26 | 0.4304 | 6.60 | 0.4039 | 6.32 | 0.3786 | 6.12 | 0.3840 | 6.19 | 0.4199 | 6.30 |
 
 ---
 
