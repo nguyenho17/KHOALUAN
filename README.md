@@ -208,10 +208,14 @@ Script sẽ tính toán điểm trung bình của bộ 5 tiêu chí LLM Judge, t
 ## 📊 Kết quả Đánh giá Thực nghiệm
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Được thực hiện trên bộ dữ liệu **351 tình huống pháp lý phức tạp** của Luật Hôn nhân và Gia đình Việt Nam:
 =======
 Được thực hiện trên bộ dữ liệu **382 tình huống pháp lý thực tế** của Luật Hôn nhân và Gia đình Việt Nam:
 >>>>>>> 6347034 (docs: add comprehensive README.md matching academic template)
+=======
+Được thực hiện trên bộ dữ liệu **351 tình huống pháp lý phức tạp** của Luật Hôn nhân và Gia đình Việt Nam:
+>>>>>>> e441130 (docs: update dataset to 351 cases and reflect exact evaluation scores from BaoCaoKhoaLuan)
 
 ### 1. Hiệu năng Hệ thống tư vấn
 * **Thời gian phản hồi trung bình:** ~2.8 giây / câu hỏi (nhờ cơ chế tối ưu hóa prompt và xoay vòng API key thông minh).
@@ -228,6 +232,7 @@ Script sẽ tính toán điểm trung bình của bộ 5 tiêu chí LLM Judge, t
 
 ### 3. Trùng khớp bộ lọc từ khóa (Keyword Accuracy)
 * **Độ chính xác từ khóa:** `0.93 / 1.0` (vượt xa ngưỡng chỉ tiêu đề ra là 0.70, chứng minh năng lực thu hồi từ khóa pháp lý cốt lõi rất cao).
+<<<<<<< HEAD
 =======
 ### 2. Chỉ số Trích dẫn Nguồn luật (Citation Metrics)
 * **Citation Precision:** `0.912` (Hạn chế tối đa việc dẫn sai điều luật).
@@ -244,6 +249,8 @@ Script sẽ tính toán điểm trung bình của bộ 5 tiêu chí LLM Judge, t
 * **Tính rõ ràng (Clarity):** `8.7 / 10`
 * **Đúng trọng tâm (Answer Relevance):** `9.1 / 10`
 >>>>>>> 6347034 (docs: add comprehensive README.md matching academic template)
+=======
+>>>>>>> e441130 (docs: update dataset to 351 cases and reflect exact evaluation scores from BaoCaoKhoaLuan)
 
 ---
 
