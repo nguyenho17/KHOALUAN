@@ -179,9 +179,12 @@ Sau đó, bạn có thể mở các file HTML trong thư mục `frontend/` trự
 Mỗi khi người dùng nhắn tin qua giao diện, FastAPI sẽ tự động kích hoạt một **Background Task** gọi `OnlineEvaluator`. Module này tự tìm câu hỏi tương đồng trong tệp `benchmarks.xlsx` để trích xuất Ground Truth và chấm điểm trực tiếp:
 * **Keyword Accuracy**
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 * **Citation Precision / Recall / F1**
 >>>>>>> 6347034 (docs: add comprehensive README.md matching academic template)
+=======
+>>>>>>> 09d879d (docs: remove Citation Metrics from README.md to match updated thesis reports)
 * **LLM-as-a-Judge (5 tiêu chí học thuật)**
 Kết quả được đồng bộ thẳng vào CSDL SQL Server của dòng chat đó để Admin theo dõi.
 
@@ -214,6 +217,7 @@ Script sẽ tính toán điểm trung bình của bộ 5 tiêu chí LLM Judge, t
 * **Thời gian phản hồi trung bình:** ~2.8 giây / câu hỏi (nhờ cơ chế tối ưu hóa prompt và xoay vòng API key thông minh).
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ### 2. Kết quả LLM-as-a-Judge (Thang điểm 10)
 * **Tính xác thực (Factuality):** `8.30 / 10` (phản ánh khả năng lập luận dựa trên căn cứ luật chính xác).
 * **Tính đầy đủ (Completeness):** `7.66 / 10` (bao phủ tốt các khía cạnh pháp lý của tình huống).
@@ -231,6 +235,9 @@ Script sẽ tính toán điểm trung bình của bộ 5 tiêu chí LLM Judge, t
 * **Citation F1-Score:** `0.898`.
 
 ### 3. Kết quả LLM-as-a-Judge (Thang điểm 10)
+=======
+### 2. Kết quả LLM-as-a-Judge (Thang điểm 10)
+>>>>>>> 09d879d (docs: remove Citation Metrics from README.md to match updated thesis reports)
 * **Tính xác thực (Factuality):** `8.5 / 10`
 * **Tính đầy đủ (Completeness):** `8.2 / 10`
 * **Tính mạch lạc (Logical Coherence):** `8.4 / 10`
