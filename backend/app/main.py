@@ -20,7 +20,7 @@ from app.services.generation import generation_service
 from app.services.processor import is_out_of_scope, reformulate_query
 
 # Import Security
-from app.services.security import create_access_token
+from app.services.security import create_access_token, hash_password, verify_password, SECRET_KEY
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials 
 from jose import jwt, JWTError 
 import os 
@@ -234,7 +234,7 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
                 detail="Tài khoản này đã bị khóa hoặc chưa kích hoạt",
             )
 
-        if request.MatKhau != tai_khoan.MatKhau:
+        if not verify_password(request.MatKhau, tai_khoan.MatKhau):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Mật khẩu không chính xác",
@@ -286,8 +286,8 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
 
         username_extracted = request.Email.split("@")[0]
         new_account = TaiKhoan(
-            TenDangNhap=username_extracted, 
-            MatKhau=request.MatKhau,  
+            TenDangNhap=username_extracted,
+            MatKhau=hash_password(request.MatKhau),  # Hash mật khẩu trước khi lưu
             MaNguoiDung=new_user.MaNguoiDung,
             MaVaiTro=2 
         )
@@ -316,7 +316,7 @@ async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(
         if not tai_khoan:
             raise HTTPException(status_code=404, detail="Không tìm thấy tài khoản liên kết với Email này!")
             
-        tai_khoan.MatKhau = "123456"
+        tai_khoan.MatKhau = hash_password("123456")  # Hash mật khẩu reset
         db.commit()
         return {"message": "Thành công! Mật khẩu của bạn đã được đặt lại thành: 123456"}
         
@@ -397,7 +397,7 @@ async def reset_password(request: ResetPasswordRequest, db: Session = Depends(ge
         nguoi_dung = db.query(NguoiDung).filter(NguoiDung.Email == request.Email).first()
         tai_khoan = db.query(TaiKhoan).filter(TaiKhoan.MaNguoiDung == nguoi_dung.MaNguoiDung).first()
         
-        tai_khoan.MatKhau = request.NewPassword
+        tai_khoan.MatKhau = hash_password(request.NewPassword)  # Hash mật khẩu mới
         db.commit()
         
         del otp_storage[request.Email]
@@ -424,9 +424,7 @@ async def chat_endpoint(
         current_user = None
         if token:
             try:
-                secret_key = "khoaluan_chatbot_bi_mat_123" 
-                algorithm = "HS256"
-                payload = jwt.decode(token.credentials, secret_key, algorithms=[algorithm])
+                payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=["HS256"])
                 ma_nguoi_dung = payload.get("ma_nguoi_dung")
                 if ma_nguoi_dung:
                     current_user = db.query(NguoiDung).filter(NguoiDung.MaNguoiDung == ma_nguoi_dung).first()
@@ -447,7 +445,15 @@ async def chat_endpoint(
                 answer = "Hệ thống chưa tìm thấy căn cứ phù hợp."
                 unique_citations = []
             else:
-                answer = generation_service.generate_answer(request.question, relevant_docs)
+                # Lấy lịch sử hội thoại trong phiên hiện tại (multi-turn context)
+                chat_history = []
+                if request.session_id and str(request.session_id).isdigit():
+                    prev_logs = db.query(LichSuChat).filter(
+                        LichSuChat.MaPhien == int(request.session_id)
+                    ).order_by(LichSuChat.ThoiGian.asc()).limit(5).all()
+                    chat_history = [{"question": log.CauHoi, "answer": log.TraLoi} for log in prev_logs]
+
+                answer = generation_service.generate_answer(request.question, relevant_docs, history=chat_history)
                 raw_citations = [f"Điều {doc['metadata'].get('article', 'N/A')}" for doc in relevant_docs]
                 unique_citations = sorted(list(set(raw_citations)))
             
@@ -606,9 +612,7 @@ async def get_chat_sessions(
         ma_nguoi_dung_id = None
         if token:
             try:
-                secret_key = "khoaluan_chatbot_bi_mat_123" 
-                algorithm = "HS256"
-                payload = jwt.decode(token.credentials, secret_key, algorithms=[algorithm])
+                payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=["HS256"])
                 ma_nguoi_dung_id = payload.get("ma_nguoi_dung")
             except JWTError:
                 ma_nguoi_dung_id = None
@@ -643,9 +647,7 @@ async def get_dashboard_stats(
         raise HTTPException(status_code=401, detail="Vui lòng đăng nhập tài khoản quản trị!")
         
     try:
-        secret_key = "khoaluan_chatbot_bi_mat_123" 
-        algorithm = "HS256"
-        payload = jwt.decode(token.credentials, secret_key, algorithms=[algorithm])
+        payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=["HS256"])
         if payload.get("ma_vai_tro") != 1:
             raise HTTPException(status_code=403, detail="Tài khoản không có quyền truy cập!")
     except JWTError:
@@ -750,9 +752,7 @@ async def get_admin_conversations(
         raise HTTPException(status_code=401, detail="Vui lòng đăng nhập quyền quản trị!")
         
     try:
-        secret_key = "khoaluan_chatbot_bi_mat_123"
-        algorithm = "HS256"
-        payload = jwt.decode(token.credentials, secret_key, algorithms=[algorithm])
+        payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=["HS256"])
         if payload.get("ma_vai_tro") != 1:
             raise HTTPException(status_code=403, detail="Tài khoản không có quyền thực hiện!")
     except JWTError:

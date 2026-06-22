@@ -115,7 +115,7 @@ class GenerationService:
         # 🛠️ Chuyển đổi sang mô hình Llama 3.3 70B Instruct tốc độ cao và lập luận đanh thép
         self.model_name = "meta-llama/llama-3.3-70b-instruct"
         
-    def generate_answer(self, question: str, retrieved_docs: list):
+    def generate_answer(self, question: str, retrieved_docs: list, history: list = None):
         context_items = []
         for doc in retrieved_docs:
             article = doc['metadata'].get('article', 'Không rõ')
@@ -138,6 +138,22 @@ class GenerationService:
         print("="*50 + "\n")
         # =================================================
 
+        # Xây dựng phần lịch sử hội thoại (multi-turn context)
+        history_section = ""
+        if history:
+            history_lines = []
+            for turn in history[-5:]:  # Chỉ lấy tối đa 5 lượt gần nhất
+                q = turn.get('question', '')
+                a = turn.get('answer', '')
+                if q and a:
+                    history_lines.append(f"Người dùng: {q}")
+                    history_lines.append(f"Hệ thống: {a[:300]}...")  # Cắt ngắn tránh vượt context window
+            if history_lines:
+                history_section = (
+                    "\n        LỊCH SỬ HỘI THOẠI TRƯỚC (để hiểu ngữ cảnh, KHÔNG lặp lại nội dung này):\n        "
+                    + "\n        ".join(history_lines)
+                    + "\n"
+                )
 
         # PROMPT NÂNG CAO - YÊU CẦU TRÍCH DẪN ĐẦY ĐỦ SỐ ĐIỀU LUẬT ĐỂ CẢI THIỆN CITATION F1
         prompt = f"""
@@ -174,11 +190,11 @@ class GenerationService:
         LƯU Ý KỶ LUẬT:
         - Chỉ tư vấn dựa trên "DANH SÁCH CĂN CỨ PHÁP LÝ" cung cấp bên dưới.
         - Nếu dữ liệu không đủ để kết luận, phải dùng MẪU TỪ CHỐI: "Dựa trên các quy định pháp luật được tra cứu hiện tại, hệ thống chưa có đủ thông tin để trả lời chính xác vấn đề này."
-
+        {history_section}
         --- DANH SÁCH CĂN CỨ PHÁP LÝ ---
         {context_text}
 
-        --- CÂU HỎI CỦA NGƯỜI DÙNG ---
+        --- CÂU HỎI HIỆN TẠI CỦA NGƯỜI DÙNG ---
         "{question}"
         """
 

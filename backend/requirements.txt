@@ -29,11 +29,12 @@ rank_bm25
 # Tách từ tiếng Việt cho BM25 (ViTokenizer)
 pyvi
 
+# Bảo mật - Hash mật khẩu bcrypt
+passlib[bcrypt]==1.7.4
+PyJWT==2.8.0
+
 # Công cụ hỗ trợ & Tính toán
 numpy
 pandas
 openpyxl
 tqdm
-
-# Thư viện đánh giá (Semantic Similarity)
-scikit-learn
