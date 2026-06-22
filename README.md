@@ -59,18 +59,76 @@ graph TD
 ```
 
 ### Giai đoạn 1: Tiền xử lý & Chunking dữ liệu Luật
-Văn bản pháp luật PDF được xử lý thông qua bộ bóc tách chuyên dụng chia nhỏ theo từng **Điều luật** (sử dụng Regex phân tách ranh giới các điều thay vì chia theo độ dài ký tự ngẫu nhiên). Điều này giúp giữ toàn vẹn ngữ nghĩa của một quy định pháp lý.
+
+```mermaid
+graph LR
+    A[Văn bản Luật PDF] --> B[pdfplumber Trích xuất Văn bản]
+    B --> C[Làm sạch: Bỏ khoảng trắng & Xuống dòng thừa]
+    C --> D[Regex Split: ?i ?=Điều\s+\d+\.]
+    D --> E[Trích xuất Metadata: Số Điều, Tên Luật, Năm, Trạng thái]
+    E --> F[Danh sách Chunks chuẩn hóa]
+```
+
+**Mô tả Pipeline:**
+PDF văn bản pháp luật được đưa qua thư viện `pdfplumber` để trích xuất văn bản tiếng Việt chính xác. Sau đó, hệ thống thực hiện chuẩn hóa ký tự bằng cách loại bỏ khoảng trắng và xuống dòng thừa. Tiếp theo, hệ thống sử dụng biểu thức chính quy (Regex) `(?i)(?=Điều\s+\d+\.)` để cắt văn bản một cách logic theo từng **Điều luật** (Article-level chunking) thay vì chia theo độ dài ký tự ngẫu nhiên, giúp bảo toàn tính toàn vẹn ngữ nghĩa của văn bản pháp lý. Mỗi đoạn cắt sẽ tự động trích xuất các trường thông tin đi kèm bao gồm: Số hiệu điều, tên luật gốc, năm ban hành và trạng thái hiệu lực pháp lý để lưu trữ vào tệp `metadata.pkl`.
+
+---
 
 ### Giai đoạn 2: Tìm kiếm lai (Hybrid Search)
-* **Dense Search:** Sử dụng mô hình nhúng đa ngôn ngữ `intfloat/multilingual-e5-base` kết hợp FAISS index tìm kiếm ngữ nghĩa sâu.
-* **Sparse Search:** Sử dụng thuật toán BM25 kết hợp thư viện tách từ tiếng Việt `pyvi (ViTokenizer)` để bắt chính xác các từ khóa pháp lý cốt lõi.
 
-### Giai đoạn 3: RRF Fusion & Temporal Decay Penalty
-* **RRF ($k=60$):** Kết hợp kết quả từ Dense Search và Sparse Search để tạo danh sách tài liệu tổng hợp tốt nhất.
-* **Temporal Decay:** Áp dụng hệ số suy hao **-20%/năm** đối với các văn bản pháp luật cũ, ưu tiên các Nghị định, Thông tư mới ban hành nhằm đảm bảo tính cập nhật của nguồn luật.
+```mermaid
+graph TD
+    A[Câu hỏi đã viết lại] --> B[Dense Pathway]
+    A --> C[Sparse Pathway]
+    B --> D[SentenceTransformer multilingual-e5-base]
+    D --> E[Tìm kiếm FAISS IndexFlatL2]
+    E --> F[Dense Pool: 35 ứng viên]
+    C --> G[Tách từ tiếng Việt pyvi ViTokenizer]
+    G --> H[Chấm điểm BM25Okapi]
+    H --> I[Sparse Pool: 35 ứng viên]
+    F --> J[Hợp nhất kết quả tìm kiếm lai]
+    I --> J
+```
+
+**Mô tả Pipeline:**
+Câu hỏi sau khi được tối ưu từ khóa sẽ đi qua hai nhánh tìm kiếm song song:
+1. **Dense Pathway (Tìm kiếm ngữ nghĩa):** Mô hình Bi-Encoder `intfloat/multilingual-e5-base` nhúng câu hỏi (thêm tiền tố `query: `) thành vector 768 chiều. FAISS sử dụng phép toán so khớp khoảng cách L2 (`IndexFlatL2`) trên RAM để rút trích ra 35 ứng viên có độ tương đồng ngữ nghĩa cao nhất.
+2. **Sparse Pathway (Tìm kiếm từ khóa thưa):** Câu hỏi được tách từ bằng `pyvi (ViTokenizer)` rồi đưa qua thuật toán `BM25Okapi` để chấm điểm tần suất xuất hiện của từ khóa pháp lý cốt lõi, trả về 35 ứng viên khớp từ khóa tốt nhất.
+
+---
+
+### Giai đoạn 3: Reciprocal Rank Fusion & Temporal Decay Penalty
+
+```mermaid
+graph TD
+    A[Dense Pool + Sparse Pool] --> B[Tính điểm RRF với k=60]
+    B --> C[Phạt suy hao theo thời gian Temporal Decay]
+    C --> D[Lấy năm hiện tại - năm ban hành luật]
+    D --> E[Hệ số: 1.0 - tuổi * 0.20]
+    E --> F[Nhân hệ số decay vào điểm RRF]
+    F --> G[Sắp xếp & Chọn top 20 ứng viên tốt nhất]
+```
+
+**Mô tả Pipeline:**
+* **Hợp nhất RRF:** Áp dụng công thức Reciprocal Rank Fusion với hằng số mượt $k=60$ để chấm điểm lại cho các ứng viên từ hai nguồn Dense và Sparse. Trọng số đóng góp của cả hai nhánh tìm kiếm được cân bằng ở mức $1.5$.
+* **Temporal Decay Penalty:** Đối với mỗi tài liệu, hệ thống tính toán khoảng cách năm bằng công thức: `Tuổi = Năm hiện tại - Năm ban hành luật`. Mỗi năm tuổi lệch sẽ phạt suy hao **20%** điểm số RRF của tài liệu đó (`decay_factor = 1.0 - tuổi * 0.20`), giới hạn mức phạt tối đa là `0.01`. Điều này giúp các văn bản quy phạm pháp luật mới ban hành tự động được đẩy lên trên các văn bản cũ đã hết hoặc sắp hết hiệu lực.
+* Cuối cùng, 20 ứng viên có điểm sau suy hao cao nhất được lựa chọn để đi tiếp vào vòng tái xếp hạng.
+
+---
 
 ### Giai đoạn 4: Hậu xử lý & Tái xếp hạng (Cross-Encoder Reranking)
-Sử dụng mô hình Cross-Encoder `cross-encoder/ms-marco-MiniLM-L-6-v2` chấm điểm mức độ tương quan trực tiếp giữa câu hỏi và tài liệu trong pool 20 ứng viên tốt nhất để chọn ra `top_k=5` đoạn luật có độ liên quan cao nhất.
+
+```mermaid
+graph LR
+    A[Top 20 Ứng viên] --> B[Tạo cặp: query, content]
+    B --> C[CrossEncoder ms-marco-MiniLM-L-6-v2]
+    C --> D[Chuẩn hóa điểm số Min-Max]
+    D --> E[Phép cộng trọng số: 0.7 CE + 0.3 RRF]
+    E --> F[Sắp xếp lại & Kết xuất Top K]
+```
+
+**Mô tả Pipeline:**
+Mô hình Cross-Encoder `cross-encoder/ms-marco-MiniLM-L-6-v2` nhận đầu vào là các cặp văn bản `[Câu hỏi, Nội dung điều luật]` và chấm điểm mức độ liên quan trực tiếp. Điểm số từ Cross-Encoder và RRF sau đó được chuẩn hóa Min-Max về khoảng $[0, 1]$. Điểm cuối cùng để sắp xếp lại tài liệu được tính bằng công thức cộng có trọng số: `Final_Score = 0.7 * Score_CE + 0.3 * Score_RRF` (với trọng số ưu tiên 70% thuộc về Cross-Encoder để đảm bảo độ chính xác ngữ cảnh). Hệ thống trích xuất ra $top\_k=5$ hoặc $top\_k=7$ điều luật tốt nhất làm căn cứ chuyển giao cho mô hình sinh văn bản.
 
 ---
 
