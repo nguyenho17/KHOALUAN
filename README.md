@@ -1,4 +1,4 @@
-# ⚖️ LexRAG++ — Hệ thống Trợ lý Pháp lý Tư vấn Luật Hôn nhân & Gia đình Việt Nam
+# ⚖️ RAG++ — Hệ thống Trợ giúp tra cứu thông tin Pháp lý  Luật Hôn nhân & Gia đình Việt Nam
 
 <div align="center">
 
@@ -518,13 +518,13 @@ Bảng so sánh **Keyword Accuracy (Acc)** và **LLM Judge Score (LLM)** trên 3
 |---|---|
 | **Họ và tên** | Nguyễn Văn Hồ |
 | **Mã số sinh viên** | 222520 |
-| **Đề tài** | Nghiên cứu và Xây dựng Hệ thống Trợ lý Pháp lý Tư vấn Luật Hôn nhân & Gia đình — LexRAG++ |
-| **Trường** | Đại học Công nghệ Thông tin — ĐHQG TP.HCM |
+| **Đề tài** | ỨNG DỤNG  CÔNG NGHỆ RAG++ XÂY DỰNG CHATBOT TRỢ GIÚP TRA CỨU THÔNG TIN PHÁP LÝ THÔNG MINH VỀ LUẬT HÔN NHÂN VÀ GIA ĐÌNH |
+| **Trường** | Đại học Nam Cần Thơ |
 
 ---
 
 <div align="center">
 
-*© 2024 LexRAG++ — Dự án Khóa Luận Tốt nghiệp*
+*© 2024 RAG++ — Dự án Khóa Luận Tốt nghiệp*
 
 </div>
