@@ -236,13 +236,7 @@ Sau đó, bạn có thể mở các file HTML trong thư mục `frontend/` trự
 ### 1. Đánh giá tự động trực tuyến (Online Evaluation)
 Mỗi khi người dùng nhắn tin qua giao diện, FastAPI sẽ tự động kích hoạt một **Background Task** gọi `OnlineEvaluator`. Module này tự tìm câu hỏi tương đồng trong tệp `benchmarks.xlsx` để trích xuất Ground Truth và chấm điểm trực tiếp:
 * **Keyword Accuracy**
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-* **Citation Precision / Recall / F1**
->>>>>>> 6347034 (docs: add comprehensive README.md matching academic template)
-=======
->>>>>>> 09d879d (docs: remove Citation Metrics from README.md to match updated thesis reports)
+
 * **LLM-as-a-Judge (5 tiêu chí học thuật)**
 Kết quả được đồng bộ thẳng vào CSDL SQL Server của dòng chat đó để Admin theo dõi.
 
@@ -265,8 +259,7 @@ Script sẽ tính toán điểm trung bình của bộ 5 tiêu chí LLM Judge, t
 
 ## 📊 Kết quả Đánh giá Thực nghiệm
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 Được thực hiện trên bộ dữ liệu **351 tình huống pháp lý phức tạp** của Luật Hôn nhân và Gia đình Việt Nam:
 =======
 Được thực hiện trên bộ dữ liệu **382 tình huống pháp lý thực tế** của Luật Hôn nhân và Gia đình Việt Nam:
