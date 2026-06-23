@@ -86,9 +86,9 @@ class LichSuChat(Base):
     DiemTongHop = Column(Float)           # Điểm số tổng hợp cuối cùng gộp trọng số
 
     # 📐 BỘ TIÊU CHÍ TRÍCH DẪN CĂN CỨ PHÁP LÝ (CITATION METRICS)
-    DiemCitationPrecision = Column(Float)  # Độ chính xác trích dẫn điều luật (0.0 - 1.0)
-    DiemCitationRecall    = Column(Float)  # Độ bao phủ nguồn luật (0.0 - 1.0)
-    DiemCitationF1        = Column(Float)  # F1-Score căn cứ pháp lý tổng hợp (0.0 - 1.0)
+    # DiemCitationPrecision = Column(Float)  # Độ chính xác trích dẫn điều luật (0.0 - 1.0)
+    # DiemCitationRecall    = Column(Float)  # Độ bao phủ nguồn luật (0.0 - 1.0)
+    # DiemCitationF1        = Column(Float)  # F1-Score căn cứ pháp lý tổng hợp (0.0 - 1.0)
 
     # --- HUMAN-IN-THE-LOOP (ADMIN PHÊ DUYỆT) ---
     TrangThaiDuyet = Column(String(50), default="Pending")
