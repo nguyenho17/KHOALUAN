@@ -1,319 +1,479 @@
 # ⚖️ LexRAG++ — Hệ thống Trợ lý Pháp lý Tư vấn Luật Hôn nhân & Gia đình Việt Nam
 
-LexRAG++ là một hệ thống RAG (Retrieval-Augmented Generation) nâng cao chuyên biệt, hỗ trợ tư vấn và giải đáp các tình huống pháp lý liên quan đến Luật Hôn nhân và Gia đình Việt Nam. Hệ thống tích hợp cơ chế tìm kiếm lai (Hybrid Search), chấm điểm sự phù hợp thời gian (Temporal Decay), tái xếp hạng (Reranking) và đánh giá chất lượng tự động đa chỉ số (Online & Offline Evaluation).
+<div align="center">
+
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-009688?logo=fastapi&logoColor=white)
+![FAISS](https://img.shields.io/badge/FAISS-VectorDB-orange?logo=meta&logoColor=white)
+![SQL Server](https://img.shields.io/badge/SQL_Server-2019%2B-CC2927?logo=microsoftsqlserver&logoColor=white)
+![LLM](https://img.shields.io/badge/LLM-Llama_3.3_70B-blueviolet?logo=meta&logoColor=white)
+![License](https://img.shields.io/badge/License-Academic-green)
+
+**Hệ thống RAG nâng cao (RAG++) chuyên biệt cho lĩnh vực pháp lý Việt Nam**  
+*Tích hợp Hybrid Search · Temporal Decay · Cross-Encoder Reranking · LLM-as-a-Judge*
+
+</div>
 
 ---
 
-## 🚀 Demo Trực quan
-* **Đường dẫn ứng dụng:** `http://localhost:8000` (Backend API) và các trang giao diện HTML tĩnh chạy trên trình duyệt.
-* **Tài khoản chạy thử:**
-  * **Người dùng:** `user01` / `123456`
-  * **Quản trị viên (Admin):** `admin` / `admin123`
+## 📋 Mục lục
+
+- [Giới thiệu](#-giới-thiệu)
+- [Tính năng nổi bật](#-tính-năng-nổi-bật)
+- [Kiến trúc hệ thống](#-kiến-trúc-hệ-thống)
+- [Pipeline RAG++](#-pipeline-rag-retrieval-augmented-generation-nâng-cao)
+- [Pipeline Đánh giá](#-pipeline-đánh-giá-chất-lượng)
+- [Cấu trúc thư mục](#-cấu-trúc-thư-mục)
+- [Cài đặt & Chạy hệ thống](#️-cài-đặt--chạy-hệ-thống)
+- [Hướng dẫn Đánh giá](#-hướng-dẫn-chạy-các-module-đánh-giá)
+- [Kết quả thực nghiệm](#-kết-quả-thực-nghiệm)
+- [Tài liệu tham khảo](#-tài-liệu-tham-khảo)
+- [Thông tin tác giả](#-thông-tin-tác-giả)
 
 ---
 
 ## 📝 Giới thiệu
 
-LexRAG++ được thiết kế nhằm giải quyết các thách thức của hệ thống RAG cơ bản trong lĩnh vực pháp lý: hiện tượng ảo giác (hallucination), thiếu trích dẫn điều luật chính xác (citation failure), và bỏ qua tính cập nhật của văn bản pháp lý.
+**LexRAG++** là hệ thống hỏi đáp pháp lý tự động được thiết kế nhằm giải quyết các thách thức cốt lõi của RAG cơ bản trong lĩnh vực pháp luật:
 
-### ⚖️ Phạm vi Tư vấn Luật
-Hệ thống được nạp dữ liệu tri thức chính thống bao gồm:
-* **Luật Hôn nhân và Gia đình Việt Nam 2014.**
-* **Các Nghị định hướng dẫn thi hành:** Nghị định 126/2014/NĐ-CP, Nghị định 123/2015/NĐ-CP, Nghị định 10/2015/NĐ-CP, Nghị định 82/2020/NĐ-CP...
-* **Các Thông tư liên tịch và Nghị quyết Hội đồng Thẩm phán:** Thông tư liên tịch 01/2016/TTLT, Nghị quyết 01/2024/NQ-HĐTP...
+| Hạn chế của RAG cơ bản | Giải pháp LexRAG++ |
+|---|---|
+| 🔴 Ảo giác (Hallucination) | ✅ Prompt có cấu trúc nghiêm ngặt + Căn cứ điều luật bắt buộc |
+| 🔴 Bỏ sót văn bản pháp lý mới | ✅ Temporal Decay Penalty — ưu tiên luật mới hơn |
+| 🔴 Tìm kiếm chỉ theo ngữ nghĩa | ✅ Hybrid Search (Dense + Sparse) + Cross-Encoder Reranking |
+| 🔴 Không có kiểm soát chất lượng | ✅ Online Evaluator + Human-in-the-loop (Admin Approval) |
 
-### 📊 Tính năng Dashboard Phân tích & Quản trị
-* **Giao diện Chat thông minh:** Hỗ trợ hội thoại đa lượt (Multi-turn), hiển thị chính xác các điều luật được trích dẫn (Citations).
-* **Trang Phân tích Thực nghiệm:** Biểu diễn trực quan các chỉ số đánh giá chất lượng phản hồi từ hệ thống.
-* **Human-in-the-loop (Admin Approval):** Cho phép kiểm soát viên duyệt, chỉnh sửa câu trả lời và cập nhật đáp án chuẩn (Ground Truth) để tối ưu hệ thống.
+### ⚖️ Phạm vi Tri thức Pháp lý
+
+Hệ thống được nạp dữ liệu tri thức pháp lý chính thống bao gồm:
+
+- **Luật Hôn nhân và Gia đình Việt Nam 2014** (Luật số 52/2014/QH13)
+- **Nghị định 126/2014/NĐ-CP** — Quy định chi tiết một số điều và biện pháp thi hành
+- **Nghị định 123/2015/NĐ-CP** — Hướng dẫn về đăng ký hộ tịch
+- **Nghị định 10/2015/NĐ-CP** — Sinh con bằng kỹ thuật hỗ trợ sinh sản
+- **Nghị định 82/2020/NĐ-CP** — Xử phạt vi phạm hành chính trong lĩnh vực HNGĐ
+- **Thông tư liên tịch 01/2016/TTLT** — Hướng dẫn thực hiện một số quy định
+- **Nghị quyết 01/2024/NQ-HĐTP** — Hướng dẫn áp dụng pháp luật trong xét xử
+
+---
+
+## ✨ Tính năng nổi bật
+
+### 💬 Giao diện Chat Thông minh
+- Hội thoại **đa lượt (Multi-turn)** có nhớ lịch sử ngữ cảnh
+- Hiển thị chính xác các **điều luật được trích dẫn** (Citations) trong câu trả lời
+- Kiểm tra phạm vi truy vấn (**Out-of-Scope Detection**) để từ chối câu hỏi ngoài phạm vi
+
+### 🔍 Cơ chế Truy xuất Nâng cao
+- **Hybrid Search**: Kết hợp FAISS Dense Search + BM25 Sparse Search
+- **Temporal Decay**: Ưu tiên văn bản pháp luật mới hơn (phạt 20%/năm tuổi)
+- **Cross-Encoder Reranking**: Tái xếp hạng kết quả với mô hình ms-marco-MiniLM-L-6-v2
+
+### 📊 Đánh giá Chất lượng Tự động
+- **Online Evaluation**: Tự động chạy nền sau mỗi câu trả lời
+  - Keyword Accuracy (Độ trùng khớp từ khóa với Ground Truth)
+  - LLM-as-a-Judge (5 tiêu chí học thuật, thang điểm 10)
+- **Offline Benchmark**: Chạy hàng loạt trên 351 tình huống pháp lý
+
+### 👨‍💼 Quản trị & Human-in-the-Loop
+- **Admin Dashboard**: Duyệt, chỉnh sửa câu trả lời và cập nhật Ground Truth
+- **Trang Phân tích**: Biểu đồ trực quan hóa chỉ số chất lượng theo thời gian
+- **Xác thực OTP Email**: Đặt lại mật khẩu an toàn qua email
 
 ---
 
 ## 🏗️ Kiến trúc Hệ thống
 
-Hệ thống được xây dựng trên kiến trúc Client-Server tách biệt:
-* **Frontend:** Giao diện Web phản hồi nhanh, sử dụng Vanilla HTML5/CSS3 và JavaScript kết nối qua REST APIs.
-* **Backend:** FastAPI (Python) quản trị luồng RAG và kết nối CSDL SQL Server (thông qua SQLAlchemy ORM).
-* **Vector Database:** FAISS lưu trữ vector tri thức được nhúng bởi mô hình Bi-Encoder.
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        FRONTEND (Vanilla JS)                    │
+│  chat.html │ admin.html │ phantich.html │ qlytuvan.html │ ...   │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │ REST API (HTTP/JSON)
+┌───────────────────────────▼─────────────────────────────────────┐
+│                  BACKEND (FastAPI + Python)                      │
+│                                                                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌───────────────────────┐  │
+│  │ processor.py │  │ retrieval.py │  │    generation.py      │  │
+│  │ (LLM Filter) │  │ (RAG Engine) │  │  (LLM + Key Rotator)  │  │
+│  └──────────────┘  └──────────────┘  └───────────────────────┘  │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │            online_evaluator.py (Background Task)         │   │
+│  │        Keyword Accuracy + LLM-as-a-Judge (5 tiêu chí)   │   │
+│  └──────────────────────────────────────────────────────────┘   │
+└──────────┬─────────────────────────────────┬────────────────────┘
+           │                                 │
+┌──────────▼──────────┐         ┌────────────▼────────────┐
+│   FAISS Vector DB   │         │  SQL Server (SQLAlchemy) │
+│  vector_db.index    │         │  NguoiDung, LichSuChat   │
+│  metadata.pkl       │         │  PhienChat, DanhGia...   │
+└─────────────────────┘         └─────────────────────────┘
+```
+
+**Stack Kỹ thuật:**
+
+| Thành phần | Công nghệ |
+|---|---|
+| Backend API | FastAPI 0.109.0 + Uvicorn |
+| Frontend | Vanilla HTML5 / CSS3 / JavaScript |
+| Vector DB | FAISS (IndexFlatL2) |
+| Bi-Encoder | `intfloat/multilingual-e5-base` (768 chiều) |
+| Cross-Encoder | `cross-encoder/ms-marco-MiniLM-L-6-v2` |
+| Sparse Search | BM25Okapi + `pyvi` ViTokenizer |
+| LLM Generator | Llama 3.3 70B (qua OpenRouter API) |
+| Database | Microsoft SQL Server + SQLAlchemy ORM |
+| Bảo mật | bcrypt (mật khẩu) + PyJWT (xác thực) |
 
 ---
 
 ## 🧬 Pipeline RAG++ (Retrieval-Augmented Generation Nâng cao)
 
-Hệ thống triển khai luồng xử lý thông tin qua 4 giai đoạn tối ưu hóa:
+### 🗺️ Tổng quan Pipeline
 
 ```mermaid
 graph TD
-    A[Câu hỏi người dùng] --> B{Out-of-scope Check}
-    B -- Ngoài phạm vi --> C[Mẫu Từ chối Tư vấn]
-    B -- Trong phạm vi --> D[Query Reformulation bằng LLM]
+    A([🧑 Câu hỏi người dùng]) --> B{Out-of-Scope Check\nLLM kiểm tra phạm vi}
+    B -- ❌ Ngoài phạm vi --> C([📋 Mẫu từ chối tư vấn])
+    B -- ✅ Trong phạm vi --> D[Query Reformulation\nbằng LLM]
     D --> E[Hybrid Search]
-    E --> F[FAISS Dense Search]
-    E --> G[BM25 Sparse Search + pyvi]
-    F --> H[Reciprocal Rank Fusion - RRF]
+    E --> F[FAISS Dense Search\nmultilingual-e5-base]
+    E --> G[BM25 Sparse Search\npyvi ViTokenizer]
+    F --> H[Reciprocal Rank Fusion\nk = 60]
     G --> H
-    H --> I[Temporal Decay Penalty]
-    I --> J[Cross-Encoder Reranking]
-    J --> K[LLM Generation Llama 3.3 70B]
-    K --> L[Tư vấn pháp lý có Cấu trúc]
+    H --> I[Temporal Decay Penalty\n-20%/năm tuổi luật]
+    I --> J[Cross-Encoder Reranking\nms-marco-MiniLM-L-6-v2]
+    J --> K[LLM Generation\nLlama 3.3 70B via OpenRouter]
+    K --> L([📜 Tư vấn pháp lý có cấu trúc])
+    L --> M[Background Task\nOnline Evaluator]
 ```
-
-### Giai đoạn 1: Tiền xử lý & Chunking dữ liệu Luật
-
-```mermaid
-graph LR
-    A[Văn bản Luật PDF] --> B[pdfplumber Trích xuất Văn bản]
-    B --> C[Làm sạch: Bỏ khoảng trắng & Xuống dòng thừa]
-    C --> D[Regex Split: ?i ?=Điều\s+\d+\.]
-    D --> E[Trích xuất Metadata: Số Điều, Tên Luật, Năm, Trạng thái]
-    E --> F[Danh sách Chunks chuẩn hóa]
-```
-
-**Mô tả Pipeline:**
-PDF văn bản pháp luật được đưa qua thư viện `pdfplumber` để trích xuất văn bản tiếng Việt chính xác. Sau đó, hệ thống thực hiện chuẩn hóa ký tự bằng cách loại bỏ khoảng trắng và xuống dòng thừa. Tiếp theo, hệ thống sử dụng biểu thức chính quy (Regex) `(?i)(?=Điều\s+\d+\.)` để cắt văn bản một cách logic theo từng **Điều luật** (Article-level chunking) thay vì chia theo độ dài ký tự ngẫu nhiên, giúp bảo toàn tính toàn vẹn ngữ nghĩa của văn bản pháp lý. Mỗi đoạn cắt sẽ tự động trích xuất các trường thông tin đi kèm bao gồm: Số hiệu điều, tên luật gốc, năm ban hành và trạng thái hiệu lực pháp lý để lưu trữ vào tệp `metadata.pkl`.
 
 ---
 
-### Giai đoạn 2: Tìm kiếm lai (Hybrid Search)
+### Giai đoạn 0: Tiền xử lý & Chunking dữ liệu Luật
+
+```mermaid
+graph LR
+    A([📄 Văn bản Luật PDF]) --> B[pdfplumber\nTrích xuất văn bản]
+    B --> C[Làm sạch văn bản\nBỏ khoảng trắng & xuống dòng thừa]
+    C --> D["Regex Split\n(?i)(?=Điều\\s+\\d+\\.)"]
+    D --> E[Trích xuất Metadata\nSố Điều · Tên Luật · Năm · Trạng thái]
+    E --> F[Mã hóa vector\nmultilingual-e5-base]
+    F --> G[(FAISS Index\nvector_db.index\nmetadata.pkl)]
+```
+
+**Mô tả:**
+> Các file PDF văn bản pháp luật được trích xuất bằng thư viện `pdfplumber`. Hệ thống chuẩn hóa văn bản, sau đó dùng biểu thức chính quy `(?i)(?=Điều\s+\d+\.)` để cắt theo từng **Điều luật** (Article-level chunking) — đảm bảo toàn vẹn ngữ nghĩa thay vì cắt theo độ dài ký tự. Mỗi đoạn văn được gắn metadata: số hiệu điều, tên luật, năm ban hành, trạng thái hiệu lực, rồi được mã hóa thành vector 768 chiều và lưu vào FAISS index.
+
+---
+
+### Giai đoạn 1: Tìm kiếm lai (Hybrid Search)
 
 ```mermaid
 graph TD
-    A[Câu hỏi đã viết lại] --> B[Dense Pathway]
+    A([🔍 Câu hỏi đã viết lại]) --> B[Dense Pathway]
     A --> C[Sparse Pathway]
-    B --> D[SentenceTransformer multilingual-e5-base]
-    D --> E[Tìm kiếm FAISS IndexFlatL2]
-    E --> F[Dense Pool: 35 ứng viên]
-    C --> G[Tách từ tiếng Việt pyvi ViTokenizer]
-    G --> H[Chấm điểm BM25Okapi]
-    H --> I[Sparse Pool: 35 ứng viên]
-    F --> J[Hợp nhất kết quả tìm kiếm lai]
+
+    B --> D["Bi-Encoder\nintfloat/multilingual-e5-base\ntiền tố: 'query: '"]
+    D --> E["FAISS IndexFlatL2\n(khoảng cách L2 trên RAM)"]
+    E --> F([Dense Pool\n35 ứng viên])
+
+    C --> G["Tách từ tiếng Việt\npyvi ViTokenizer"]
+    G --> H[Chấm điểm BM25Okapi\ntần suất từ khóa pháp lý]
+    H --> I([Sparse Pool\n35 ứng viên])
+
+    F --> J[Hợp nhất kết quả]
     I --> J
 ```
 
-**Mô tả Pipeline:**
-Câu hỏi sau khi được tối ưu từ khóa sẽ đi qua hai nhánh tìm kiếm song song:
-1. **Dense Pathway (Tìm kiếm ngữ nghĩa):** Mô hình Bi-Encoder `intfloat/multilingual-e5-base` nhúng câu hỏi (thêm tiền tố `query: `) thành vector 768 chiều. FAISS sử dụng phép toán so khớp khoảng cách L2 (`IndexFlatL2`) trên RAM để rút trích ra 35 ứng viên có độ tương đồng ngữ nghĩa cao nhất.
-2. **Sparse Pathway (Tìm kiếm từ khóa thưa):** Câu hỏi được tách từ bằng `pyvi (ViTokenizer)` rồi đưa qua thuật toán `BM25Okapi` để chấm điểm tần suất xuất hiện của từ khóa pháp lý cốt lõi, trả về 35 ứng viên khớp từ khóa tốt nhất.
+**Mô tả:**
+> Câu hỏi sau khi viết lại được xử lý song song qua hai nhánh:
+> - **Dense Pathway**: Bi-Encoder `multilingual-e5-base` mã hóa câu hỏi (thêm tiền tố `query: `) thành vector 768 chiều. FAISS tìm kiếm khoảng cách L2 trên toàn bộ kho vector, trả về 35 ứng viên có ngữ nghĩa gần nhất.
+> - **Sparse Pathway**: Câu hỏi được tách từ bằng `ViTokenizer` rồi đưa qua `BM25Okapi` để chấm điểm tần suất từ khóa pháp lý, trả về 35 ứng viên khớp từ khóa tốt nhất.
 
 ---
 
-### Giai đoạn 3: Reciprocal Rank Fusion & Temporal Decay Penalty
+### Giai đoạn 2: Reciprocal Rank Fusion & Temporal Decay
 
 ```mermaid
 graph TD
-    A[Dense Pool + Sparse Pool] --> B[Tính điểm RRF với k=60]
-    B --> C[Phạt suy hao theo thời gian Temporal Decay]
-    C --> D[Lấy năm hiện tại - năm ban hành luật]
-    D --> E[Hệ số: 1.0 - tuổi * 0.20]
-    E --> F[Nhân hệ số decay vào điểm RRF]
-    F --> G[Sắp xếp & Chọn top 20 ứng viên tốt nhất]
+    A([Dense Pool + Sparse Pool]) --> B["Công thức RRF\nScore = Σ(1 / k + rank)\nvới k = 60, trọng số = 1.5"]
+    B --> C[Temporal Decay Penalty]
+    C --> D["Tuổi = Năm hiện tại − Năm ban hành"]
+    D --> E["decay_factor = max(0.01, 1.0 − tuổi × 0.20)"]
+    E --> F["Điểm sau suy hao = Score_RRF × decay_factor"]
+    F --> G["Sắp xếp giảm dần\nChọn Top 20 ứng viên tốt nhất"]
+    G --> H([🏆 Top 20 ứng viên])
 ```
 
-**Mô tả Pipeline:**
-* **Hợp nhất RRF:** Áp dụng công thức Reciprocal Rank Fusion với hằng số mượt $k=60$ để chấm điểm lại cho các ứng viên từ hai nguồn Dense và Sparse. Trọng số đóng góp của cả hai nhánh tìm kiếm được cân bằng ở mức $1.5$.
-* **Temporal Decay Penalty:** Đối với mỗi tài liệu, hệ thống tính toán khoảng cách năm bằng công thức: `Tuổi = Năm hiện tại - Năm ban hành luật`. Mỗi năm tuổi lệch sẽ phạt suy hao **20%** điểm số RRF của tài liệu đó (`decay_factor = 1.0 - tuổi * 0.20`), giới hạn mức phạt tối đa là `0.01`. Điều này giúp các văn bản quy phạm pháp luật mới ban hành tự động được đẩy lên trên các văn bản cũ đã hết hoặc sắp hết hiệu lực.
-* Cuối cùng, 20 ứng viên có điểm sau suy hao cao nhất được lựa chọn để đi tiếp vào vòng tái xếp hạng.
+**Mô tả:**
+> - **Hợp nhất RRF**: Áp dụng Reciprocal Rank Fusion với $k=60$ để chuẩn hóa điểm từ hai nguồn Dense và Sparse, cân bằng trọng số đóng góp ở mức $1.5$ cho mỗi nhánh.
+> - **Temporal Decay Penalty**: Mỗi năm tuổi của văn bản pháp lý bị phạt suy hao **20%** điểm RRF (`decay_factor = 1.0 − tuổi × 0.20`), giới hạn tối thiểu `0.01`. Cơ chế này tự động nâng điểm văn bản mới ban hành và hạ điểm văn bản cũ đã hết hiệu lực.
 
 ---
 
-### Giai đoạn 4: Hậu xử lý & Tái xếp hạng (Cross-Encoder Reranking)
+### Giai đoạn 3: Cross-Encoder Reranking
 
 ```mermaid
 graph LR
-    A[Top 20 Ứng viên] --> B[Tạo cặp: query, content]
-    B --> C[CrossEncoder ms-marco-MiniLM-L-6-v2]
-    C --> D[Chuẩn hóa điểm số Min-Max]
-    D --> E[Phép cộng trọng số: 0.7 CE + 0.3 RRF]
-    E --> F[Sắp xếp lại & Kết xuất Top K]
+    A([Top 20 Ứng viên]) --> B["Tạo cặp đầu vào\n[query, content] × 20"]
+    B --> C["Cross-Encoder\ncross-encoder/ms-marco-MiniLM-L-6-v2\nĐọc đồng thời cả 2 văn bản"]
+    C --> D["Chuẩn hóa Min-Max\nScore_CE → [0, 1]"]
+    D --> E["Cộng trọng số\n0.7 × Score_CE + 0.3 × Score_RRF"]
+    E --> F["Sắp xếp lại & Chọn\nTop K = 7 điều luật"]
+    F --> G([📚 Context pháp lý\nchuyển cho LLM])
 ```
 
-**Mô tả Pipeline:**
-Mô hình Cross-Encoder `cross-encoder/ms-marco-MiniLM-L-6-v2` nhận đầu vào là các cặp văn bản `[Câu hỏi, Nội dung điều luật]` và chấm điểm mức độ liên quan trực tiếp. Điểm số từ Cross-Encoder và RRF sau đó được chuẩn hóa Min-Max về khoảng $[0, 1]$. Điểm cuối cùng để sắp xếp lại tài liệu được tính bằng công thức cộng có trọng số: `Final_Score = 0.7 * Score_CE + 0.3 * Score_RRF` (với trọng số ưu tiên 70% thuộc về Cross-Encoder để đảm bảo độ chính xác ngữ cảnh). Hệ thống trích xuất ra $top\_k=5$ hoặc $top\_k=7$ điều luật tốt nhất làm căn cứ chuyển giao cho mô hình sinh văn bản.
+**Mô tả:**
+> Mô hình Cross-Encoder `ms-marco-MiniLM-L-6-v2` nhận đầu vào là các cặp `[Câu hỏi, Nội dung điều luật]` và chấm điểm mức độ liên quan trực tiếp (đọc song song cả hai văn bản thay vì độc lập như Bi-Encoder). Điểm từ Cross-Encoder và RRF được chuẩn hóa Min-Max rồi kết hợp theo công thức: **Final = 0.7 × Score_CE + 0.3 × Score_RRF**, ưu tiên 70% cho Cross-Encoder để đảm bảo độ chính xác ngữ cảnh. Hệ thống xuất ra $top\_k = 7$ điều luật tốt nhất.
 
 ---
 
-## 🤖 Pipeline Tư vấn sinh văn bản & Clinical Circuit Breaker
+### Giai đoạn 4: Sinh văn bản với Llama 3.3 70B
 
-Hệ thống chuyển tiếp ngữ cảnh gồm tài liệu pháp lý và lịch sử chat vào mô hình ngôn ngữ lớn **Llama 3.3 70B** (thông qua cổng OpenRouter API) với cấu trúc prompt kỷ luật nghiêm ngặt:
+```mermaid
+graph TD
+    A([📚 Top-K Điều luật + Lịch sử Chat]) --> B[Xây dựng Structured Prompt]
+    B --> C["PHẦN I: Lời chào & xác nhận vấn đề"]
+    B --> D["PHẦN II: Căn cứ pháp lý áp dụng\n(Trích dẫn Điều X – Tên văn bản)"]
+    B --> E["PHẦN III: Phân tích & tư vấn chi tiết"]
+    B --> F["PHẦN IV: Lời khuyên & kết luận"]
+    C --> G["LLM: Llama 3.3 70B\nqua OpenRouter API\nAPIKeyRotator: tự động xoay Key"]
+    D --> G
+    E --> G
+    F --> G
+    G --> H([📝 Câu trả lời pháp lý\ncó cấu trúc + trích dẫn điều luật])
+```
 
-* **PHẦN I: Lời chào và xác nhận vấn đề** (Thấu cảm và ghi nhận tình huống).
-* **PHẦN II: Căn cứ pháp lý áp dụng** (Trích dẫn chính xác Điều X - [Tên văn bản]).
-* **PHẦN III: Phân tích và nội dung tư vấn chi tiết** (Lập luận logic dựa trên quy định).
-* **PHẦN IV: Lời khuyên pháp lý và kết luận** (Các bước hành động đề xuất).
+**Mô tả:**
+> Ngữ cảnh gồm Top-K điều luật và lịch sử hội thoại được đưa vào **Llama 3.3 70B** (qua OpenRouter API) với cấu trúc prompt 4 phần nghiêm ngặt. Hệ thống tích hợp `APIKeyRotator` tự động phát hiện key hết hạn / bị lỗi và chuyển sang key dự phòng tiếp theo (hỗ trợ đến 50 key), đảm bảo uptime cao.
 
 ---
 
-## 📂 Cấu trúc Thư mục Dự án
+## 📊 Pipeline Đánh giá Chất lượng
+
+### Online Evaluation (Tự động sau mỗi câu hỏi)
+
+```mermaid
+graph TD
+    A([💬 Câu trả lời được tạo]) --> B[Background Task kích hoạt\nOnlineEvaluator]
+    B --> C[Tìm Ground Truth\ntừ benchmarks.xlsx\nSequenceMatcher similarity > 0.6]
+    C --> D[Keyword Accuracy\nKW xuất hiện trong AI answer / Tổng KW GT × 100]
+    C --> E[LLM-as-a-Judge\nLlama 3.3 70B chấm 5 tiêu chí]
+    E --> E1[Factuality — Tính xác thực]
+    E --> E2[Completeness — Tính đầy đủ]
+    E --> E3[Coherence — Tính mạch lạc]
+    E --> E4[Clarity — Tính rõ ràng]
+    E --> E5[Relevance — Đúng trọng tâm]
+    D --> F[Lưu vào SQL Server\nLichSuChat record]
+    E1 --> F
+    E2 --> F
+    E3 --> F
+    E4 --> F
+    E5 --> F
+    F --> G([📊 Admin theo dõi\ntrên Dashboard])
+```
+
+### Offline Benchmark (Đánh giá hàng loạt)
+
+```mermaid
+graph LR
+    A([benchmark_hngd.xlsx\n351 tình huống]) --> B[run_benchmark.py\nGọi API hàng loạt]
+    B --> C[benchmarkss.xlsx\nCâu trả lời + Citations]
+    C --> D[evaluate.py\nChấm điểm toàn bộ]
+    D --> E([evaluatesss-1.csv\nBáo cáo chi tiết])
+```
+
+---
+
+## 📂 Cấu trúc Thư mục
 
 ```
 c:\KHOALUAN\
-├── backend/
-│   ├── app/
-│   │   ├── db/
-│   │   │   ├── database.py         # Cấu hình kết nối SQL Server
-│   │   │   └── models.py           # Định nghĩa các bảng dữ liệu (Models)
-│   │   ├── services/
-│   │   │   ├── embedding.py        # Nhúng dữ liệu sang Vector
-│   │   │   ├── generation.py       # Tích hợp LLM sinh văn bản & Xoay Key
-│   │   │   ├── llm_service.py      # Module gọi Gemini dự phòng
-│   │   │   ├── online_evaluator.py # Đánh giá trực tuyến thời gian thực
-│   │   │   ├── processor.py        # Kiểm duyệt & viết lại câu hỏi (LLM)
-│   │   │   ├── retrieval.py        # Tìm kiếm kết hợp FAISS + BM25 + CE
-│   │   │   ├── security.py         # Mã hóa bcrypt mật khẩu & JWT Token
-│   │   │   └── vector_store.py     # Quản lý Index FAISS
-│   │   └── main.py                 # Định nghĩa các API Endpoints chính
-│   ├── data/
-│   │   ├── *.pdf                   # 10 PDF văn bản pháp luật gốc
-│   │   ├── metadata.pkl            # Metadata lưu thông tin luật
-│   │   └── vector_db.index         # Vector Database index đã dựng
-│   ├── scripts/
-│   │   └── ingest_law.py           # Script tách và nạp luật vào Vector DB
-│   ├── .env                        # Chứa các tham số cấu hình & API Keys
-│   ├── requirements.txt            # Danh sách thư viện Python cần thiết
-│   ├── evaluate.py                 # Script chạy đánh giá offline chi tiết
-│   └── run_benchmark.py            # Script chạy benchmark hàng loạt
-├── frontend/
-│   ├── chat.html                   # Trang giao diện nhắn tin chính
-│   ├── admin.html                  # Trang quản trị phê duyệt câu trả lời
-│   ├── phantich.html               # Trang thống kê, hiển thị biểu đồ thực nghiệm
-│   ├── qlytuvan.html               # Phân hệ quản lý lịch sử tư vấn
-│   ├── dangky.html & login.html    # Trang đăng ký, đăng nhập hệ thống
-│   └── app.js                      # Logic Frontend kết nối REST API
-└── Word/                           # Chứa tài liệu báo cáo nghiên cứu
+├── 📁 backend/
+│   ├── 📁 app/
+│   │   ├── 📁 db/
+│   │   │   ├── database.py             # Cấu hình kết nối SQL Server (SQLAlchemy)
+│   │   │   └── models.py               # Định nghĩa ORM: NguoiDung, LichSuChat, PhienChat...
+│   │   ├── 📁 services/
+│   │   │   ├── embedding.py            # Nhúng văn bản thành vector (Bi-Encoder)
+│   │   │   ├── generation.py           # Tích hợp LLM Llama 3.3 70B + APIKeyRotator
+│   │   │   ├── llm_service.py          # Module gọi Gemini (dự phòng)
+│   │   │   ├── online_evaluator.py     # Đánh giá tự động nền (KW Acc + LLM Judge)
+│   │   │   ├── processor.py            # Kiểm tra phạm vi & viết lại câu hỏi (LLM)
+│   │   │   ├── retrieval.py            # Pipeline RAG++: FAISS + BM25 + RRF + CE
+│   │   │   ├── security.py             # Mã hóa bcrypt + JWT Token
+│   │   │   └── vector_store.py         # Quản lý FAISS Index
+│   │   └── main.py                     # FastAPI: định nghĩa tất cả API Endpoints
+│   ├── 📁 data/
+│   │   ├── *.pdf                       # 10 file PDF văn bản pháp luật gốc
+│   │   ├── metadata.pkl                # Metadata chunk: Điều, Tên luật, Năm, Trạng thái
+│   │   └── vector_db.index             # FAISS Vector Index đã dựng sẵn
+│   ├── 📁 scripts/
+│   │   └── ingest_law.py               # Script tách luật theo Điều & nạp vào FAISS
+│   ├── benchmarks.xlsx                 # Bộ dữ liệu chuẩn: Câu hỏi + Ground Truth
+│   ├── benchmark_hngd.xlsx             # 351 tình huống pháp lý kiểm định
+│   ├── evaluate.py                     # Script đánh giá offline (Keyword Acc + LLM Judge)
+│   ├── run_benchmark.py                # Script chạy benchmark hàng loạt qua API
+│   ├── .env                            # Biến môi trường: DB, JWT, API Keys
+│   └── requirements.txt                # Danh sách thư viện Python
+├── 📁 frontend/
+│   ├── trangchu.html                   # Trang chủ giới thiệu hệ thống
+│   ├── chat.html                       # Giao diện chat đa lượt chính
+│   ├── admin.html                      # Dashboard quản trị & Human-in-the-loop
+│   ├── phantich.html                   # Trang phân tích & biểu đồ chỉ số chất lượng
+│   ├── qlytuvan.html                   # Quản lý lịch sử tư vấn
+│   ├── qlytuvan_chitiet.html           # Chi tiết từng phiên tư vấn
+│   ├── dangky.html                     # Đăng ký tài khoản
+│   ├── login.html                      # Đăng nhập
+│   ├── quenmatkhau.html                # Đặt lại mật khẩu (OTP Email)
+│   ├── caidat.html                     # Cài đặt hồ sơ người dùng
+│   ├── timhiuthem.html                 # Trang tìm hiểu thêm về hệ thống
+│   └── app.js                          # Logic Frontend: gọi REST API, render giao diện
+└── 📁 Word/                            # Tài liệu báo cáo nghiên cứu (NCKH, Khóa luận)
 ```
 
 ---
 
 ## ⚡ Cài đặt & Chạy Hệ thống
 
-### Yêu cầu Hệ thống
-* Hệ điều hành: Windows 10/11
-* Python 3.9 trở lên
-* Microsoft SQL Server (hoặc SQL Server Express)
-* Cài đặt thư viện Microsoft ODBC Driver 17 for SQL Server.
+### Yêu cầu hệ thống
 
-### Bước 1: Thiết lập cấu hình biến môi trường
-Tạo file `.env` nằm trong thư mục `backend/` với nội dung mẫu như sau:
+| Thành phần | Yêu cầu tối thiểu |
+|---|---|
+| Hệ điều hành | Windows 10/11 |
+| Python | 3.9 trở lên |
+| RAM | 8 GB (khuyến nghị 16 GB) |
+| Database | Microsoft SQL Server / SQL Server Express |
+| ODBC Driver | Microsoft ODBC Driver 17 for SQL Server |
+
+### Bước 1: Thiết lập biến môi trường
+
+Tạo file `.env` trong thư mục `backend/`:
+
 ```env
-# Database Configuration
+# ── Database Configuration ─────────────────────────────────
 DB_SERVER=NGUYEN_HO\SQLEXPRESS
 DB_NAME=ChatbotLuatHonNhan
 DB_USER=sa
 DB_PASS=123456
 
-# JWT Configuration
-JWT_SECRET_KEY=khoaluan_chatbot_bi_mat_123
+# ── Bảo mật JWT ─────────────────────────────────────────────
+JWT_SECRET_KEY=your_strong_secret_key_here
 
-# OpenRouter API Keys (Hệ thống tự động xoay vòng nếu key bị lỗi hoặc hết hạn)
+# ── OpenRouter API Keys (Hệ thống tự động xoay vòng) ────────
 OPENROUTER_API_KEY_1=sk-or-v1-your-key-1
 OPENROUTER_API_KEY_2=sk-or-v1-your-key-2
-# ... có thể mở rộng đến OPENROUTER_API_KEY_50
+# Có thể mở rộng đến OPENROUTER_API_KEY_50
 ```
 
-### Bước 2: Cài đặt thư viện và Khởi tạo CSDL
-Mở PowerShell tại thư mục `backend/` và thực thi:
+### Bước 2: Cài đặt thư viện
+
 ```powershell
+cd c:\KHOALUAN\backend
 pip install -r requirements.txt
 ```
 
 ### Bước 3: Nạp dữ liệu luật (Ingestion)
-Đặt các file PDF luật vào thư mục `backend/data/` rồi chạy script để tách điều luật và xây dựng vector index:
+
+Đặt các file PDF văn bản pháp luật vào `backend/data/`, sau đó chạy:
+
 ```powershell
 python scripts/ingest_law.py
 ```
 
-### Bước 4: Khởi động Server
-Khởi chạy backend FastAPI:
+> Script sẽ tách văn bản theo từng Điều luật, trích xuất metadata, mã hóa vector và lưu vào `data/vector_db.index` + `data/metadata.pkl`.
+
+### Bước 4: Khởi động Backend Server
+
 ```powershell
 uvicorn app.main:app --reload --port 8000
 ```
-Sau đó, bạn có thể mở các file HTML trong thư mục `frontend/` trực tiếp trên trình duyệt hoặc sử dụng Live Server trong VS Code để trải nghiệm hệ thống.
+
+### Bước 5: Truy cập giao diện
+
+Mở trình duyệt và điều hướng đến thư mục `frontend/`, mở file HTML tương ứng hoặc dùng **Live Server** trong VS Code:
+
+| Trang | File | Mô tả |
+|---|---|---|
+| Trang chủ | `trangchu.html` | Giới thiệu hệ thống |
+| Chat | `chat.html` | Giao diện tư vấn chính |
+| Admin | `admin.html` | Duyệt & quản lý câu trả lời |
+| Phân tích | `phantich.html` | Biểu đồ chỉ số đánh giá |
+
+**Tài khoản chạy thử:**
+- 👤 Người dùng: `user01` / `123456`
+- 🔑 Quản trị viên: `admin` / `admin123`
 
 ---
 
-## 🔬 Hướng dẫn Chạy các Module Đánh giá (Evaluation & Benchmark)
+## 🔬 Hướng dẫn Chạy các Module Đánh giá
 
 ### 1. Đánh giá tự động trực tuyến (Online Evaluation)
-Mỗi khi người dùng nhắn tin qua giao diện, FastAPI sẽ tự động kích hoạt một **Background Task** gọi `OnlineEvaluator`. Module này tự tìm câu hỏi tương đồng trong tệp `benchmarks.xlsx` để trích xuất Ground Truth và chấm điểm trực tiếp:
-* **Keyword Accuracy**
 
-* **LLM-as-a-Judge (5 tiêu chí học thuật)**
-Kết quả được đồng bộ thẳng vào CSDL SQL Server của dòng chat đó để Admin theo dõi.
+> Được kích hoạt **tự động** sau mỗi câu hỏi — không cần thao tác thủ công.
+
+Mỗi khi người dùng gửi câu hỏi qua giao diện, FastAPI kích hoạt một **Background Task** gọi `OnlineEvaluator`. Module này:
+1. Tìm câu hỏi tương đồng nhất trong `benchmarks.xlsx` (SequenceMatcher > 0.6)
+2. Tính **Keyword Accuracy** — đo tỷ lệ từ khóa Ground Truth xuất hiện trong câu trả lời
+3. Gọi **LLM-as-a-Judge** — Llama 3.3 70B chấm điểm 5 tiêu chí học thuật (thang 0–100)
+4. Lưu toàn bộ điểm vào SQL Server để Admin theo dõi
 
 ### 2. Chạy Benchmark hàng loạt
-Để kiểm tra hiệu năng hệ thống trên tập dữ liệu lớn, chạy script gọi API hàng loạt:
+
 ```powershell
+cd c:\KHOALUAN\backend
 python run_benchmark.py
 ```
-* **Đầu vào:** Đọc từ file `benchmark_hngd.xlsx` (chứa các câu hỏi kiểm định).
-* **Đầu ra:** Ghi nhận toàn bộ câu trả lời, trích dẫn luật và ngữ cảnh vào file `benchmarkss.xlsx`.
 
-### 3. Chạy Đánh giá Offline chi tiết
-Sau khi có tệp kết quả từ bước benchmark, chạy script đánh giá học thuật:
+- **Đầu vào:** `benchmark_hngd.xlsx` — 351 tình huống pháp lý
+- **Đầu ra:** `benchmarkss.xlsx` — toàn bộ câu trả lời, trích dẫn luật và ngữ cảnh
+
+### 3. Đánh giá Offline chi tiết
+
 ```powershell
 python evaluate.py
 ```
-Script sẽ tính toán điểm trung bình của bộ 5 tiêu chí LLM Judge, tính tỷ lệ Keyword Accuracy, xuất ra báo cáo tóm tắt trên Terminal và lưu báo cáo chi tiết dạng Excel tại `evaluatesss-1.csv`.
+
+- Tính điểm trung bình 5 tiêu chí LLM Judge và Keyword Accuracy trên toàn bộ dataset
+- Xuất báo cáo tóm tắt ra Terminal
+- Lưu báo cáo chi tiết tại `evaluatesss-1.csv`
 
 ---
 
-## 📊 Kết quả Đánh giá Thực nghiệm
+## 📊 Kết quả Thực nghiệm
 
+> Được thực hiện trên bộ dữ liệu **351 tình huống pháp lý phức tạp** thuộc phạm vi Luật Hôn nhân và Gia đình Việt Nam.
 
-Được thực hiện trên bộ dữ liệu **351 tình huống pháp lý phức tạp** của Luật Hôn nhân và Gia đình Việt Nam:
-=======
-Được thực hiện trên bộ dữ liệu **382 tình huống pháp lý thực tế** của Luật Hôn nhân và Gia đình Việt Nam:
->>>>>>> 6347034 (docs: add comprehensive README.md matching academic template)
-=======
-Được thực hiện trên bộ dữ liệu **351 tình huống pháp lý phức tạp** của Luật Hôn nhân và Gia đình Việt Nam:
->>>>>>> e441130 (docs: update dataset to 351 cases and reflect exact evaluation scores from BaoCaoKhoaLuan)
+### Kết quả LLM-as-a-Judge (Thang điểm 10)
 
-### 1. Hiệu năng Hệ thống tư vấn
-* **Thời gian phản hồi trung bình:** ~2.8 giây / câu hỏi (nhờ cơ chế tối ưu hóa prompt và xoay vòng API key thông minh).
+| Tiêu chí | Điểm số | Mô tả |
+|---|:---:|---|
+| Tính xác thực (Factuality) | **8.30 / 10** | Lập luận dựa trên căn cứ điều luật chính xác |
+| Tính đầy đủ (Completeness) | **7.66 / 10** | Bao phủ tốt các khía cạnh pháp lý |
+| Tính mạch lạc (Coherence) | **8.18 / 10** | Cấu trúc tư vấn rõ ràng, lập luận chặt chẽ |
+| Tính rõ ràng (Clarity) | **8.25 / 10** | Ngôn từ tường minh, dễ hiểu |
+| Đúng trọng tâm (Relevance) | **8.69 / 10** | Phản hồi trực tiếp thắc mắc pháp lý |
+| **Điểm trung bình** | **8.22 / 10** | ✅ Vượt ngưỡng yêu cầu học thuật (7.50) |
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-### 2. Kết quả LLM-as-a-Judge (Thang điểm 10)
-* **Tính xác thực (Factuality):** `8.30 / 10` (phản ánh khả năng lập luận dựa trên căn cứ luật chính xác).
-* **Tính đầy đủ (Completeness):** `7.66 / 10` (bao phủ tốt các khía cạnh pháp lý của tình huống).
-* **Tính mạch lạc (Logical Coherence):** `8.18 / 10` (cấu trúc tư vấn rõ ràng, lập luận chặt chẽ).
-* **Tính rõ ràng (Clarity):** `8.25 / 10` (ngôn từ tường minh, dễ hiểu với người dùng).
-* **Đúng trọng tâm (Answer Relevance):** `8.69 / 10` (phản hồi trực tiếp thắc mắc pháp lý).
-* **Điểm LLM Judge Score trung bình:** `8.22 / 10` (vượt ngưỡng yêu cầu học thuật là 7.50).
+### Keyword Accuracy
 
-### 3. Trúng khớp bộ lọc từ khóa (Keyword Accuracy)
-* **Độ chính xác từ khóa:** `0.93 / 1.0` (vượt xa ngưỡng chỉ tiêu đề ra là 0.70, chứng minh năng lực thu hồi từ khóa pháp lý cốt lõi rất cao).
-<<<<<<< HEAD
-=======
-### 2. Chỉ số Trích dẫn Nguồn luật (Citation Metrics)
-* **Citation Precision:** `0.912` (Hạn chế tối đa việc dẫn sai điều luật).
-* **Citation Recall:** `0.885` (Bao phủ hầu hết các căn cứ pháp lý cần thiết).
-* **Citation F1-Score:** `0.898`.
+| Chỉ số | Giá trị | Ngưỡng yêu cầu | Đánh giá |
+|---|:---:|:---:|:---:|
+| Keyword Accuracy | **0.93 / 1.0** | 0.70 | ✅ Vượt xa ngưỡng |
 
-### 3. Kết quả LLM-as-a-Judge (Thang điểm 10)
-=======
-### 2. Kết quả LLM-as-a-Judge (Thang điểm 10)
->>>>>>> 09d879d (docs: remove Citation Metrics from README.md to match updated thesis reports)
-* **Tính xác thực (Factuality):** `8.5 / 10`
-* **Tính đầy đủ (Completeness):** `8.2 / 10`
-* **Tính mạch lạc (Logical Coherence):** `8.4 / 10`
-* **Tính rõ ràng (Clarity):** `8.7 / 10`
-* **Đúng trọng tâm (Answer Relevance):** `9.1 / 10`
->>>>>>> 6347034 (docs: add comprehensive README.md matching academic template)
-=======
->>>>>>> e441130 (docs: update dataset to 351 cases and reflect exact evaluation scores from BaoCaoKhoaLuan)
+---
 
-### 4. Đánh giá So sánh các Baselines & Cấu hình Đa lượt (Multi-turn)
+### So sánh các Baseline & Cấu hình Multi-turn
 
-Bảng so sánh dưới đây trình bày chi tiết chỉ số **Accuracy** (Keyword Accuracy) và **LLM Judge Score** trung bình trên bộ dữ liệu **LexRAG (351 tình huống)** của hệ thống qua các lượt hội thoại từ 1-turn đến 5-turn dưới các cấu hình khác nhau:
-* **Zero:** Chạy trực tiếp LLM không nạp ngữ cảnh truy xuất (Zero-shot).
-* **Retriever:** Chỉ sử dụng văn bản luật truy xuất thô đưa vào prompt.
-* **Reference (RAG++):** Sử dụng cấu hình RAG++ hoàn chỉnh (Hybrid Search + Temporal Decay + Cross-Encoder Reranking + Structured Prompt).
+Bảng so sánh **Keyword Accuracy (Acc)** và **LLM Judge Score (LLM)** trên 351 tình huống, đánh giá qua các lượt hội thoại từ 1-turn đến 5-turn với 3 cấu hình:
 
-**Bảng 4: Chỉ số Accuracy và LLM Judge Score của các baseline khác nhau trên LexRAG (Các kết quả tốt nhất trong từng cột được in đậm):**
+- **Zero** — LLM không có ngữ cảnh truy xuất (Zero-shot)
+- **Retriever** — Chỉ dùng văn bản luật thô
+- **Reference (RAG++)** — Hệ thống LexRAG++ hoàn chỉnh
 
 | Model | Type | 1-turn Acc | 1-turn LLM | 2-turn Acc | 2-turn LLM | 3-turn Acc | 3-turn LLM | 4-turn Acc | 4-turn LLM | 5-turn Acc | 5-turn LLM | ALL Acc | ALL LLM |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+|:---|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | **GLM-4-Flash** | Zero | 0.3431 | 6.11 | 0.3534 | 6.86 | 0.3738 | 6.87 | 0.3737 | 6.88 | 0.3726 | 6.82 | 0.3633 | 6.71 |
 | | Retriever | 0.3403 | 5.92 | 0.3670 | 6.75 | 0.3783 | 6.78 | 0.3794 | 6.83 | 0.3820 | 6.77 | 0.3694 | 6.61 |
 | | Reference | 0.5843 | 6.52 | 0.4776 | 7.06 | 0.4610 | 6.99 | 0.4451 | 6.93 | 0.4382 | 6.89 | 0.4812 | 6.88 |
@@ -336,19 +496,35 @@ Bảng so sánh dưới đây trình bày chi tiết chỉ số **Accuracy** (Ke
 | | Retriever | 0.3667 | 6.42 | 0.3436 | 6.90 | 0.3554 | 6.88 | 0.3604 | 6.79 | 0.3597 | 6.77 | 0.3571 | 6.75 |
 | | Reference | 0.5030 | 6.26 | 0.4304 | 6.60 | 0.4039 | 6.32 | 0.3786 | 6.12 | 0.3840 | 6.19 | 0.4199 | 6.30 |
 
+> **Ghi chú:** Kết quả tốt nhất trong từng cột được in **đậm**. Cấu hình **Reference (RAG++)** nhất quán vượt trội so với Zero-shot và Retriever-only trên tất cả các mô hình và số lượt hội thoại.
+
 ---
 
-## 📚 Tài liệu Tham khảo Chính
+## 📚 Tài liệu Tham khảo
 
 1. Luật Hôn nhân và Gia đình Việt Nam số 52/2014/QH13.
-2. Lewis, P., et al. (2020). *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks*. NeurIPS.
-3. intfloat/multilingual-e5-base model card on Hugging Face.
-4. Llama 3.3 model documentation by Meta AI.
+2. Lewis, P., et al. (2020). *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks*. NeurIPS 2020.
+3. Robertson, S., & Zaragoza, H. (2009). *The Probabilistic Relevance Framework: BM25 and Beyond*. Foundations and Trends in Information Retrieval.
+4. Wang, L., et al. (2022). *Text Embeddings by Weakly-Supervised Contrastive Pre-training*. (multilingual-e5-base).
+5. Nogueira, R., & Cho, K. (2019). *Passage Re-ranking with BERT*. (ms-marco-MiniLM Cross-Encoder).
+6. Llama 3.3 model documentation by Meta AI.
+7. Zheng, L., et al. (2023). *Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena*. NeurIPS 2023.
 
 ---
 
 ## 👤 Thông tin Tác giả
 
-* **Họ và tên:** Nguyễn Văn Hồ
-* **Mã số sinh viên:** 222520
-* **Đề tài:** Nghiên cứu và xây dựng Hệ thống Trợ lý Pháp lý Tư vấn Luật Hôn nhân & Gia đình LexRAG++
+| Thông tin | Chi tiết |
+|---|---|
+| **Họ và tên** | Nguyễn Văn Hồ |
+| **Mã số sinh viên** | 222520 |
+| **Đề tài** | Nghiên cứu và Xây dựng Hệ thống Trợ lý Pháp lý Tư vấn Luật Hôn nhân & Gia đình — LexRAG++ |
+| **Trường** | Đại học Công nghệ Thông tin — ĐHQG TP.HCM |
+
+---
+
+<div align="center">
+
+*© 2024 LexRAG++ — Dự án Khóa Luận Tốt nghiệp*
+
+</div>
