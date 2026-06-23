@@ -43,53 +43,6 @@ class OnlineEvaluator:
         return round(accuracy, 1)
 
     # ═══════════════════════════════════════════════════════════════════
-    # PHƯƠNG PHÁP 2: CITATION PRECISION / RECALL / F1  ← MỚI THÊM
-    # ═══════════════════════════════════════════════════════════════════
-    def _calculate_citation_metrics(self, ai_answer: str, ground_truth: str) -> dict:
-        """
-        Tính Citation Precision, Recall, F1-Score bằng cách so khớp số điều luật
-        giữa câu trả lời của chatbot và ground truth.
-
-        Ví dụ:
-          ai_answer   cite: Điều 51, Điều 58  → pred = {'51', '58'}
-          ground_truth cite: Điều 51           → gt   = {'51'}
-          → Precision = 1/2 = 0.50
-          → Recall    = 1/1 = 1.00
-          → F1        = 2*0.5*1/(0.5+1) = 0.67
-        """
-        # Regex bắt: "Điều 51", "điều 3", "Dieu 2a", "dieu 12b" (có chữ cái sau số)
-        article_pattern = re.compile(
-            r'đi[eề]u\s+(\d+[a-z]?)',
-            re.IGNORECASE | re.UNICODE
-        )
-
-        def extract_articles(text: str) -> set:
-            if not text:
-                return set()
-            return set(article_pattern.findall(text.lower()))
-
-        pred_articles = extract_articles(ai_answer)
-        gt_articles   = extract_articles(ground_truth)
-
-        # Nếu cả hai đều rỗng → không có điều luật nào → trả về 0
-        if not pred_articles and not gt_articles:
-            return {"precision": 0.0, "recall": 0.0, "f1": 0.0}
-
-        intersection = pred_articles & gt_articles
-
-        precision = len(intersection) / len(pred_articles) if pred_articles else 0.0
-        recall    = len(intersection) / len(gt_articles)   if gt_articles   else 0.0
-        f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
-
-        return {
-            "precision": round(precision, 4),
-            "recall":    round(recall,    4),
-            "f1":        round(f1,        4),
-            "pred_articles": sorted(pred_articles),
-            "gt_articles":   sorted(gt_articles),
-        }
-
-    # ═══════════════════════════════════════════════════════════════════
     # PHƯƠNG PHÁP 3: LLM-AS-A-JUDGE (5 TIÊU CHÍ)
     # ═══════════════════════════════════════════════════════════════════
     def _evaluate_5_criteria_via_llm(self, question: str, ai_answer: str, ground_truth: str) -> dict:
@@ -162,9 +115,8 @@ Relevance: [số điểm]
         """
         Đánh giá tự động đầy đủ sau mỗi câu trả lời theo pipeline:
           1. Keyword Accuracy
-          2. Citation Precision / Recall / F1   ← MỚI
-          3. LLM-as-a-Judge (5 tiêu chí)
-          4. Ghi toàn bộ điểm vào SQL Server
+          2. LLM-as-a-Judge (5 tiêu chí)
+          3. Ghi toàn bộ điểm vào SQL Server
         """
         import pandas as pd
         ground_truth = ""
@@ -223,10 +175,7 @@ Relevance: [số điểm]
             # 2a. Keyword Accuracy (thang 0–100)
             score_kw = self._calculate_keyword_accuracy(ai_answer, ground_truth)
 
-            # 2b. Citation Precision / Recall / F1 (thang 0.0–1.0)  ← MỚI
-            citation = self._calculate_citation_metrics(ai_answer, ground_truth)
-
-            # 2c. LLM-as-a-Judge 5 tiêu chí (thang 0–100)
+            # 2b. LLM-as-a-Judge 5 tiêu chí (thang 0–100)
             eval_5 = self._evaluate_5_criteria_via_llm(question, ai_answer, ground_truth)
 
             # ── Tính điểm LLM Judge trung bình (thang 0–100) ─────────
@@ -240,15 +189,8 @@ Relevance: [số điểm]
             print("\n" + "=" * 60)
             print("📊 ĐÁNH GIÁ TỰ ĐỘNG LEXRAG++ — KẾT QUẢ CHI TIẾT")
             print("=" * 60)
-            print(f"1. Chỉ số Căn cứ Luật F1-Score:        {citation['f1']:.2f} / 1.0")
+            print(f"1. Trùng khớp bộ lọc thô (KW Acc):    {round(score_kw / 100, 2):.2f} / 1.0")
             print(f"2. Điểm số LLM Judge Score:             {round(avg_llm_judge / 10, 2):.2f} / 10")
-            print()
-            print("   Chi tiết ma trận trích xuất căn cứ pháp lý:")
-            print(f"   - Độ chính xác trích dẫn (Precision): {citation['precision']:.2f} / 1.0")
-            print(f"   - Độ bao phủ nguồn luật (Recall):     {citation['recall']:.2f} / 1.0")
-            print(f"   - Trùng khớp bộ lọc thô (KW Acc):    {round(score_kw / 100, 2):.2f} / 1.0")
-            print(f"   ↳ Điều luật AI trích dẫn: {citation['pred_articles']}")
-            print(f"   ↳ Điều luật Ground Truth:  {citation['gt_articles']}")
             print()
             print("   Chi tiết điểm số bộ 5 tiêu chí học thuật:")
             print(f"   - Tính xác thực (Factuality):         {round(eval_5['factuality']  / 10, 2):.2f} / 10")
@@ -272,15 +214,11 @@ Relevance: [số điểm]
                 chat_record.DiemCoherence        = round(eval_5["coherence"],    1)
                 chat_record.DiemClarity          = round(eval_5["clarity"],      1)
                 chat_record.DiemRelevance        = round(eval_5["relevance"],    1)
-                # Citation Metrics  ← CỘT MỚI
-                chat_record.DiemCitationPrecision = round(citation["precision"], 4)
-                chat_record.DiemCitationRecall    = round(citation["recall"],    4)
-                chat_record.DiemCitationF1        = round(citation["f1"],        4)
                 # Ground Truth
                 chat_record.GroundTruth          = ground_truth
 
                 db.commit()
-                print(f"💾 [SUCCESS] Đã lưu đầy đủ 11 chỉ số kiểm định vào dòng chat #{chat_id}!")
+                print(f"💾 [SUCCESS] Đã lưu đầy đủ 7 chỉ số kiểm định vào dòng chat #{chat_id}!")
 
         except Exception as db_err:
             db.rollback()
