@@ -20,5 +20,32 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Đồng bộ toàn bộ repository sang Hugging Face Space
-          git push --force https://nguyenho17:$HF_TOKEN@huggingface.co/spaces/nguyenho17/ChatBotLuatHonNhan main
+          # 1. Cấu hình danh tính Git
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          
+          # 2. Khởi tạo Git LFS trên runner
+          git lfs install
+          
+          # 3. Tạo một nhánh tạm (orphan) độc lập không có lịch sử
+          git checkout --orphan temp-deploy
+          
+          # 4. Loại bỏ các file và thư mục không cần thiết cho chatbot production
+          # Loại bỏ thư mục Word (slide, báo cáo tốt nghiệp nặng)
+          git rm -rf --cached Word/ || true
+          rm -rf Word/
+          
+          # Loại bỏ các file excel, csv phục vụ test offline
+          git rm -rf --cached backend/*.xlsx backend/*.csv || true
+          rm -f backend/*.xlsx backend/*.csv
+          
+          # 5. Nhận diện và chuyển đổi các file nhị phân thành Git LFS pointer
+          git add .gitattributes
+          git add backend/data/
+          
+          # 6. Tạo commit sạch
+          git add -A
+          git commit -m "Deploy production build to Hugging Face"
+          
+          # 7. Đẩy (push) force nhánh tạm này lên nhánh main của Hugging Face Space
+          git push --force https://nguyenho17:$HF_TOKEN@huggingface.co/spaces/nguyenho17/ChatBotLuatHonNhan temp-deploy:main
