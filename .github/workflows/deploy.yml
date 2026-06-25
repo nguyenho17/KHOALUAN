@@ -35,9 +35,12 @@ jobs:
           git rm -rf --cached Word/ || true
           rm -rf Word/
           
-          # Loại bỏ các file excel, csv phục vụ test offline
+          # Loại bỏ các file excel, csv phục vụ test offline (ngoại trừ lexrag_summary_report.xlsx)
+          mv backend/lexrag_summary_report.xlsx ./lexrag_summary_report.xlsx || true
           git rm -rf --cached backend/*.xlsx backend/*.csv || true
           rm -f backend/*.xlsx backend/*.csv
+          mv ./lexrag_summary_report.xlsx backend/lexrag_summary_report.xlsx || true
+          git add -f backend/lexrag_summary_report.xlsx || true
           
           # 5. Nhận diện và chuyển đổi các file nhị phân thành Git LFS pointer
           git add .gitattributes
