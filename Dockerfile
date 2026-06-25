@@ -42,13 +42,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # ── Pre-download AI Models vào cache (build-time) ─────────────
 # Làm điều này khi build để lúc startup không cần tải lại
-RUN python -c " \
-import sentence_transformers as st; \
-print('Đang tải model Bi-Encoder (multilingual-e5-base)...'); \
-st.SentenceTransformer('intfloat/multilingual-e5-base'); \
-print('Đang tải model Cross-Encoder (ms-marco-MiniLM-L-6-v2)...'); \
-st.CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2'); \
-print('Tất cả model đã được tải thành công!')"
+RUN python -c "import sentence_transformers as st; print('Đang tải model Bi-Encoder (multilingual-e5-base)...'); st.SentenceTransformer('intfloat/multilingual-e5-base'); print('Đang tải model Cross-Encoder (ms-marco-MiniLM-L-6-v2)...'); st.CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2'); print('Tất cả model đã được tải thành công!')"
 
 # ── Copy toàn bộ source code ───────────────────────────────────
 COPY backend/ ./backend/
