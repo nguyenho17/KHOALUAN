@@ -67,6 +67,26 @@ short_description: ChatBot tư vấn Luật Hôn nhân và Gia đình Việt Nam
 
 ---
 
+## 📺 Demo
+
+Hệ thống đã được triển khai (deploy) trực tuyến trên Hugging Face Spaces tại đường dẫn sau:
+
+* **Link chạy thử demo:** [https://huggingface.co/spaces/nguyenho17/ChatBotLuatHonNhan](https://huggingface.co/spaces/nguyenho17/ChatBotLuatHonNhan)
+
+Bạn có thể sử dụng các tài khoản có sẵn dưới đây để đăng nhập và trải nghiệm đầy đủ tính năng:
+
+### 🔑 1. Tài khoản Người dùng (User Account)
+* **Tên đăng nhập:** `nguyenho17`
+* **Mật khẩu:** `nguyenho04`
+* **Quyền hạn:** Đăng nhập, chat tư vấn pháp lý, duy trì lịch sử phiên chat và chỉnh sửa hồ sơ cá nhân.
+
+### 🔑 2. Tài khoản Quản trị viên (Admin Account)
+* **Tên đăng nhập:** `nguyenho220704`
+* **Mật khẩu:** `admin123`
+* **Quyền hạn:** Truy cập Dashboard thống kê phân tích, quản lý hội thoại toàn hệ thống, phê duyệt/từ chối câu trả lời của AI, và nhập Ground Truth (Human-in-the-Loop).
+
+---
+
 ## ✨ Tính Năng Nổi Bật
 
 ### 🤖 Về AI / RAG
@@ -668,17 +688,17 @@ KW_Acc = |{từ_khóa_GT} ∩ {từ_khóa_AI}| / |{từ_khóa_GT}| × 100
 LLM_Judge = (Factuality + Completeness + Coherence + Clarity + Relevance) / 5
 ```
 
-### Kết quả thực nghiệm trên tập 377 câu hỏi
+### Kết quả thực nghiệm trên tập 351 câu hỏi
 
 | Chỉ số | Kết quả |
 |---|---|
-| Keyword Accuracy | **0.81 / 1.0** |
-| LLM Judge (tổng hợp) | **8.18 / 10** |
-| Factuality | 8.22 / 10 |
-| Completeness | 7.62 / 10 |
-| Coherence | 8.20 / 10 |
-| Clarity | 8.23 / 10 |
-| Relevance | **8.65 / 10** |
+| Keyword Accuracy | **0.93 / 1.0** |
+| LLM Judge (tổng hợp) | **8.23 / 10** |
+| Factuality | 8.32 / 10 |
+| Completeness | 7.65 / 10 |
+| Coherence | 8.25 / 10 |
+| Clarity | 8.28 / 10 |
+| Relevance | **8.68 / 10** |
 
 ---
 
@@ -689,7 +709,7 @@ LLM_Judge = (Factuality + Completeness + Coherence + Clarity + Relevance) / 5
 ```bash
 cd backend
 
-# Đánh giá trên toàn bộ dataset (chậm, ~377 câu hỏi)
+# Đánh giá trên toàn bộ dataset (chậm, ~351 câu hỏi)
 python evaluate.py
 
 # Chạy benchmark nhanh
@@ -712,6 +732,25 @@ benchmarks.xlsx         — Dataset câu hỏi + Ground Truth (cột: CauHoi, Gr
 evaluation_results.csv  — Chi tiết kết quả đánh giá từng câu
 lexrag_summary_report.xlsx — Báo cáo tổng hợp (đọc bởi API /admin/experimental-stats)
 ```
+
+### 📊 Bảng so sánh kết quả thực nghiệm giữa các mô hình (LexRAG Benchmark)
+
+Dưới đây là bảng so sánh chi tiết kết quả thử nghiệm hiệu năng của các mô hình LLM khác nhau trên tập **351 tình huống** theo kiến trúc RAG 4 giai đoạn, tương ứng với số lượt hội thoại (Multi-turn Context) từ 1 đến 5 lượt:
+
+| Model | Type | 1-turn Acc | 1-turn LLM | 2-turn Acc | 2-turn LLM | 3-turn Acc | 3-turn LLM | 4-turn Acc | 4-turn LLM | 5-turn Acc | 5-turn LLM | ALL Acc | ALL LLM |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **Llama-3.3** | Zero | 0.4990 | 7.82 | 0.4820 | 7.74 | 0.5110 | 7.68 | 0.4950 | 7.60 | 0.4780 | 7.88 | 0.4930 | 7.78 |
+| **Llama-3.3** | Retriever | 0.3560 | 8.12 | 0.3410 | 7.98 | 0.3290 | 8.05 | 0.3480 | 8.08 | 0.3350 | 7.94 | 0.3418 | 8.03 |
+| **Llama-3.3** | **Reference (LexRAG++)** | **0.7950** | **8.44** | **0.8640** | **8.31** | **0.8320** | **8.38** | **0.8580** | **8.26** | **0.8760** | **8.34** | **0.8450** | **8.35** |
+| Gemini-2.5 | Zero | 0.5370 | 5.43 | 0.4491 | 5.34 | 0.5295 | 5.33 | 0.4945 | 5.34 | 0.5654 | 5.29 | 0.5151 | 5.35 |
+| Gemini-2.5 | Retriever | 0.7665 | 6.70 | 0.7255 | 7.94 | 0.6945 | 7.49 | 0.7312 | 6.89 | 0.7131 | 6.64 | 0.7262 | 7.13 |
+| Gemini-2.5 | Reference | 0.7486 | 7.37 | 0.7745 | 6.70 | 0.7296 | 7.39 | 0.7500 | 7.46 | 0.6952 | 6.87 | 0.7396 | 7.16 |
+| GPT-4o-m | Zero | 0.4074 | 8.34 | 0.4257 | 8.30 | 0.4644 | 8.13 | 0.4541 | 8.30 | 0.4333 | 8.26 | 0.4370 | 8.27 |
+| GPT-4o-m | Retriever | 0.6368 | 7.89 | 0.5954 | 6.70 | 0.6036 | 6.51 | 0.6360 | 7.69 | 0.6019 | 7.03 | 0.6147 | 7.17 |
+| GPT-4o-m | Reference | 0.7282 | 7.04 | 0.6924 | 7.79 | 0.6429 | 7.87 | 0.7253 | 7.74 | 0.6935 | 7.76 | 0.6965 | 7.64 |
+| Gemma-3 | Zero | 0.4634 | 7.54 | 0.4093 | 5.14 | 0.4681 | 6.27 | 0.4687 | 6.41 | 0.4904 | 6.94 | 0.4600 | 6.46 |
+| Gemma-3 | Retriever | 0.7248 | 7.56 | 0.6749 | 7.57 | 0.6819 | 7.59 | 0.6763 | 6.93 | 0.6684 | 8.01 | 0.6853 | 7.53 |
+| Gemma-3 | Reference | 0.7107 | 7.74 | 0.6088 | 8.34 | 0.6115 | 8.22 | 0.7340 | 8.43 | 0.6828 | 8.17 | 0.6696 | 8.18 |
 
 ---
 
