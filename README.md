@@ -7,7 +7,7 @@ sdk: docker
 app_port: 7860
 pinned: true
 license: other
-short_description: Hệ thống tư vấn pháp lý Luật Hôn Nhân VN với RAG++ (FAISS + BM25 + LLM)
+short_description: ChatBot tư vấn Luật Hôn nhân và Gia đình Việt Nam
 ---
 
 <div align="center">
