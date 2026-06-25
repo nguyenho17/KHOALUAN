@@ -52,6 +52,27 @@ app = FastAPI(
 try:
     Base.metadata.create_all(bind=engine)
     print("✅ [Database] Tất cả bảng đã được tạo/xác nhận thành công!")
+    
+    # Tự động nạp dữ liệu vai trò (VaiTro) nếu bảng trống để tránh lỗi khóa ngoại khi đăng ký
+    from sqlalchemy.orm import sessionmaker
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    db_session = SessionLocal()
+    try:
+        from app.db.models import VaiTro
+        if db_session.query(VaiTro).count() == 0:
+            print("🌱 [Database] Bảng VaiTro trống. Đang nạp dữ liệu vai trò mặc định...")
+            admin_role = VaiTro(MaVaiTro=1, TenVaiTro="Admin", MoTa="Quản trị viên hệ thống")
+            user_role = VaiTro(MaVaiTro=2, TenVaiTro="User", MoTa="Người dùng thường")
+            db_session.add(admin_role)
+            db_session.add(user_role)
+            db_session.commit()
+            print("✅ [Database] Đã nạp xong vai trò Admin (1) và User (2) mặc định!")
+    except Exception as e_seed:
+        db_session.rollback()
+        print(f"⚠️ [Database] Không thể nạp dữ liệu vai trò mặc định: {e_seed}")
+    finally:
+        db_session.close()
+
 except Exception as e:
     print(f"⚠️ [Database] Lỗi tạo bảng: {e}")
 
