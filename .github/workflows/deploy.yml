@@ -41,7 +41,7 @@ jobs:
           
           # 5. Nhận diện và chuyển đổi các file nhị phân thành Git LFS pointer
           git add .gitattributes
-          git add backend/data/
+          git add -f backend/data/
           
           # 6. Tạo commit sạch
           git add -A
