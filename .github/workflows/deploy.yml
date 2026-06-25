@@ -21,4 +21,4 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           # Đồng bộ toàn bộ repository sang Hugging Face Space
-          git push --force https://Ngho17:$HF_TOKEN@huggingface.co/spaces/Ngho17/ChatBotLuatHonNhan main
+          git push --force https://nguyenho17:$HF_TOKEN@huggingface.co/spaces/nguyenho17/ChatBotLuatHonNhan main
