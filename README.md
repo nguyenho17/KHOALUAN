@@ -1,3 +1,15 @@
+---
+title: ChatBot AI Luật Hôn Nhân và Gia Đình
+emoji: ⚖️
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: true
+license: other
+short_description: Hệ thống tư vấn pháp lý Luật Hôn Nhân VN với RAG++ (FAISS + BM25 + LLM)
+---
+
 <div align="center">
 
 # ⚖️ ChatBot AI – Luật Hôn Nhân và Gia Đình Việt Nam

@@ -1,40 +1,62 @@
-# Web Framework & Server
+# ==============================================================
+# requirements.txt — ChatBot AI LexRAG++ (HuggingFace Production)
+# ==============================================================
+
+# ── Web Framework & Server ─────────────────────────────────────
 fastapi==0.109.0
-uvicorn==0.27.0
+uvicorn[standard]==0.27.0
 python-multipart
 python-dotenv
 
-# Database (SQL Server) - Cần thiết cho pyodbc và SQLAlchemy
-pyodbc
+# ── Database ──────────────────────────────────────────────────
+# PostgreSQL driver (production — Neon.tech / Supabase)
+psycopg2-binary
+
+# SQL Server driver (chỉ cần khi dev local trên Windows)
+# pyodbc
+
+# SQLAlchemy ORM
 sqlalchemy
-# Thư viện hỗ trợ parse URL kết nối
+
+# Tiện ích parse URL
 urllib3
 
-# Xử lý văn bản
+# ── Xử lý văn bản PDF ─────────────────────────────────────────
 PyPDF2
-python-docx
 pdfplumber
+python-docx
 
-# AI & Embedding
-google-generativeai
+# ── AI & Embedding ─────────────────────────────────────────────
+# Bi-Encoder: intfloat/multilingual-e5-base
+# Cross-Encoder: cross-encoder/ms-marco-MiniLM-L-6-v2
 sentence-transformers
+
+# Client gọi OpenRouter API (tương thích OpenAI SDK)
 openai
 
-# FAISS dùng để lưu trữ và tìm kiếm Vector
+# Google Gemini (dự phòng)
+google-generativeai
+
+# ── Vector Database ────────────────────────────────────────────
 faiss-cpu
 
-# Rank_BM25 dùng cho Keyword Search trong Hybrid Search
+# ── Hybrid Search ──────────────────────────────────────────────
+# BM25 sparse retrieval
 rank_bm25
 
-# Tách từ tiếng Việt cho BM25 (ViTokenizer)
+# Tách từ tiếng Việt cho BM25
 pyvi
 
-# Bảo mật - Hash mật khẩu bcrypt
+# ── Bảo mật ───────────────────────────────────────────────────
 passlib[bcrypt]==1.7.4
 PyJWT==2.8.0
+python-jose[cryptography]
 
-# Công cụ hỗ trợ & Tính toán
+# ── Tính toán & Công cụ ───────────────────────────────────────
 numpy
 pandas
 openpyxl
 tqdm
+
+# ── Text Splitting ─────────────────────────────────────────────
+langchain-text-splitters

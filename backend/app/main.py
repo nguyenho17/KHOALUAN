@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 import smtplib
@@ -8,11 +10,10 @@ from email.mime.multipart import MIMEMultipart
 import random
 from datetime import datetime, date, timedelta
 from sqlalchemy import or_
+
 # Import Database và Models
-from app.db.database import get_db
-from app.db.models import TaiKhoan, NguoiDung, PhienChat, LichSuChat 
-# Thêm dòng này để dùng phép HOẶC (OR) trong SQL
-from sqlalchemy import or_
+from app.db.database import get_db, engine, Base
+from app.db.models import TaiKhoan, NguoiDung, PhienChat, LichSuChat
 
 # Import RAG Services
 from app.services.retrieval import retrieval_service
@@ -21,23 +22,40 @@ from app.services.processor import is_out_of_scope, reformulate_query
 
 # Import Security
 from app.services.security import create_access_token, hash_password, verify_password, SECRET_KEY
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials 
-from jose import jwt, JWTError 
-import os 
-import time 
-import traceback 
-from typing import Optional 
-from openai import OpenAI 
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import jwt, JWTError
+import os
+import time
+import traceback
+from typing import Optional
+from openai import OpenAI
 
 # Import các module gốc để đồng bộ hóa cấu hình xoay vòng key
 import app.services.generation as gen_mod
 import app.services.online_evaluator as eval_mod
 
-# Import Online Evaluator 
+# Import Online Evaluator
 from app.services.online_evaluator import online_evaluator
 
-app = FastAPI(title="ChatBot AI Luật Hôn Nhân RAG++ Local")
+# ==============================================================
+# KHỞI TẠO ỨNG DỤNG FASTAPI
+# ==============================================================
+app = FastAPI(
+    title="ChatBot AI Luật Hôn Nhân & Gia Đình",
+    description="LexRAG++ — Hệ thống tư vấn pháp lý hôn nhân gia đình Việt Nam",
+    version="2.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
 
+# ── Tự động tạo bảng DB khi startup (PostgreSQL / SQLite) ──────
+try:
+    Base.metadata.create_all(bind=engine)
+    print("✅ [Database] Tất cả bảng đã được tạo/xác nhận thành công!")
+except Exception as e:
+    print(f"⚠️ [Database] Lỗi tạo bảng: {e}")
+
+# ── CORS — cho phép toàn bộ origin (phù hợp HuggingFace Spaces) ─
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -45,6 +63,32 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Serve Frontend HTML/JS/CSS từ thư mục frontend/ ────────────
+# Đường dẫn tương đối từ thư mục backend/ lên một cấp → frontend/
+_FRONTEND_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "frontend"
+)
+if os.path.exists(_FRONTEND_DIR):
+    app.mount("/static", StaticFiles(directory=_FRONTEND_DIR), name="static")
+    print(f"✅ [Frontend] Đang phục vụ từ: {_FRONTEND_DIR}")
+else:
+    print(f"⚠️ [Frontend] Không tìm thấy thư mục: {_FRONTEND_DIR}")
+
+# ── Route gốc → chuyển hướng đến trang chủ ─────────────────────
+@app.get("/", include_in_schema=False)
+async def root():
+    return RedirectResponse(url="/static/trangchu.html")
+
+# ── Health Check endpoint (dùng cho Docker healthcheck) ─────────
+@app.get("/health", tags=["System"])
+async def health_check():
+    return {
+        "status": "ok",
+        "service": "ChatBot AI Luật Hôn Nhân LexRAG++",
+        "version": "2.0.0"
+    }
 
 # Khởi tạo cơ chế bảo mật Token (auto_error=False giúp cho phép khách gọi API mà không bị chặn lỗi 401)
 security = HTTPBearer(auto_error=False)

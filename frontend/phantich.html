@@ -301,7 +301,7 @@
                     <div class="mt-6 pt-4 border-t border-outline-variant/30 text-center">
                         <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Xuất báo cáo lưu trữ vật lý</p>
                         <div class="flex justify-center gap-2">
-                            <button onclick="window.open('http://127.0.0.1:8000/api/admin/download-excel', '_blank')" class="px-4 py-2.5 primary-gradient text-white font-bold text-xs rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-1 shadow-sm">
+                            <button onclick="window.open(window.location.origin + '/api/admin/download-excel', '_blank')" class="px-4 py-2.5 primary-gradient text-white font-bold text-xs rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-1 shadow-sm">
                                 <span class="material-symbols-outlined text-[16px]">table_view</span> Báo cáo Excel
                             </button>
                         </div>
@@ -456,7 +456,7 @@
 
             async function fetchExperimentalReportStats() {
                 try {
-                    const response = await fetch("http://127.0.0.1:8000/api/admin/experimental-stats", {
+                    const response = await fetch(`${window.location.origin}/api/admin/experimental-stats`, {
                         method: "GET",
                         headers: {
                             "Authorization": `Bearer ${accessToken}`,

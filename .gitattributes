@@ -1,0 +1,5 @@
+# Đảm bảo các script chạy trên Linux luôn sử dụng định dạng dòng LF (Unix)
+*.sh text eol=lf
+Dockerfile text eol=lf
+.dockerignore text eol=lf
+requirements.txt text eol=lf

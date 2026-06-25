@@ -259,7 +259,7 @@
 
             async function fetchConversations() {
                 try {
-                    let url = `http://127.0.0.1:8000/api/admin/conversations?page=${currentPage}&page_size=${pageSize}`;
+                    let url = `${window.location.origin}/api/admin/conversations?page=${currentPage}&page_size=${pageSize}`;
                     if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
                     if (selectedTopic && selectedTopic !== "Chủ đề: Tất cả") url += `&topic=${encodeURIComponent(selectedTopic)}`;
 

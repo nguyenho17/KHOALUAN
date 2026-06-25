@@ -1,0 +1,84 @@
+# ==============================================================
+# .dockerignore — Loại trừ file không cần thiết khỏi Docker image
+# ==============================================================
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-cache/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Benchmark & Research files (không cần deploy)
+backend/benchmark*.xlsx
+backend/benchmark*.csv
+backend/benchmark*.txt
+backend/benchmarks.xlsx
+backend/benchmarkss.xlsx
+backend/benchmarkss.xlsx
+backend/evaluation_results.csv
+backend/evaluations.xlsx
+backend/full_benchmark_results.xlsx
+backend/groq_benchmark_log.txt
+backend/resume_benchmark_log*.txt
+backend/resume_benchmark_results.xlsx
+backend/lexrag_summary.xlsx
+backend/golden_dataset_*.csv
+
+# Script chỉ dùng cho nghiên cứu (không cần trong production)
+backend/run_benchmark.py
+backend/run_full_benchmark.py
+backend/run_groq_benchmark.py
+backend/run_resume_benchmark.py
+backend/check_keys.py
+backend/debug_judge.py
+backend/get_data.py
+backend/generate_paper_pdf.py
+
+# Environment files (bí mật, không được đưa vào image)
+backend/.env
+.env
+*.env
+
+# Word documents
+Word/
+
+# Logs
+*.log
+*.txt
+
+# Test files
+frontend/test.html
+
+# Temporary files
+~$*
+*.tmp
+
+# Docs (README cho local, không cần trong container)
+README.md

@@ -1,30 +1,40 @@
-// app.js; // DEBUG: Bắt chính xác dòng code nào gây reload
+// ==============================================================
+// app.js — ChatBot AI Luật Hôn Nhân & Gia Đình (LexRAG++)
+// ==============================================================
+// Tự động phát hiện API URL: hoạt động cả local lẫn HuggingFace
+// ==============================================================
+
+// ── Phát hiện base URL của API tự động ─────────────────────────
+// Khi chạy local: http://127.0.0.1:8000
+// Khi chạy trên HuggingFace: https://username-spacename.hf.space
+// Cả hai đều cùng server → dùng window.location.origin
+const API_BASE = window.location.origin;
+
+// DEBUG: Bắt chính xác dòng code nào gây reload
 window.addEventListener('beforeunload', function() {
     console.trace('🔴 TRANG BỊ RELOAD - Stack trace:');
-    // Hiển thị trong Console tab của DevTools
 });
 
 // Đợi cho đến khi toàn bộ giao diện HTML được tải xong
 document.addEventListener("DOMContentLoaded", function() {
-    
+
     // ========================================================
-    // PHẦN 1: LOGIC TRANG ĐĂNG NHẬP (login.html) - ĐÃ SỬA LỖI TRỐNG USER_INFO
+    // PHẦN 1: LOGIC TRANG ĐĂNG NHẬP (login.html)
     // ========================================================
     const loginForm = document.getElementById("loginForm");
-    
+
     if (loginForm) {
         loginForm.addEventListener("submit", async function(event) {
-            event.preventDefault(); // Ngăn chặn trình duyệt load lại trang
+            event.preventDefault();
 
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
             const errorMessage = document.getElementById("error-message");
-            
+
             errorMessage.style.display = "none";
 
             try {
-                // Gọi API backend
-                const response = await fetch("http://127.0.0.1:8000/api/login", {
+                const response = await fetch(`${API_BASE}/api/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -36,25 +46,18 @@ document.addEventListener("DOMContentLoaded", function() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    // =====================================================================
-                    // 🛠️ TRÚNG ĐÍCH: BỔ SUNG LƯU BIẾN USER_INFO DƯỚI DẠNG CHUỖI ĐỂ TRANG ĐỒ ÁN ADMIN ĐỌC ĐƯỢC
-                    // =====================================================================
                     localStorage.setItem("access_token", data.access_token);
                     localStorage.setItem("user_info", JSON.stringify(data.user_info));
-                    // =====================================================================
-                    
-                    // Giữ nguyên các cấu hình lưu dữ liệu cũ của bạn để không ảnh hưởng trang chat.html
                     localStorage.setItem("user_role", data.user_info.ma_vai_tro);
                     localStorage.setItem("user_fullname", data.user_info.ho_ten);
                     localStorage.setItem("username", data.user_info.ten_dang_nhap);
-                    
+
                     alert("Đăng nhập thành công!");
-                    
-                    // Chuyển hướng trang dựa trên vai trò
-                    if (Number(data.user_info.ma_vai_tro) === 1) { 
-                        window.location.href = "admin.html"; // Trang Admin
+
+                    if (Number(data.user_info.ma_vai_tro) === 1) {
+                        window.location.href = "admin.html";
                     } else {
-                        window.location.href = "chat.html"; // Trang người dùng
+                        window.location.href = "chat.html";
                     }
                 } else {
                     errorMessage.textContent = data.detail || "Đăng nhập thất bại!";
@@ -69,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ========================================================
-    // PHẦN 2: LOGIC TRANG CHAT (chat.html) - KHÓA BA LỚP CHỐNG REFRESH
+    // PHẦN 2: LOGIC TRANG CHAT (chat.html)
     // ========================================================
     const chatContainer = document.querySelector("main section.flex-1.overflow-y-auto");
     const chatInput = document.querySelector("textarea");
@@ -79,18 +82,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const savedFullName = localStorage.getItem("user_fullname");
 
     if (displayUsername) {
-        if (savedFullName) {
-            displayUsername.textContent = savedFullName; 
-        } else {
-            displayUsername.textContent = "Người dùng"; 
-        }
+        displayUsername.textContent = savedFullName || "Người dùng";
     }
 
-    // Biến cờ kiểm soát trạng thái gửi để tránh Race Condition và gửi trùng lặp dữ liệu
-    let isSending = false; 
+    let isSending = false;
 
     if (chatContainer && chatInput && sendButton) {
-        
+
         function addUserMessage(message) {
             const msgHTML = `
                 <div class="flex gap-5 items-start justify-end mb-10">
@@ -110,11 +108,10 @@ document.addEventListener("DOMContentLoaded", function() {
             let citationsHTML = "";
             if (citations && citations.length > 0) {
                 const tags = citations.map(c => {
-                    // TỐI ƯU: Gộp các từ "Điều" bị lặp liên tiếp do lỗi dữ liệu thô thành một từ duy nhất
                     let cleanCitation = c.replace(/(Điều\s*)+/gi, "Điều ");
                     return `<span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-bold mr-2 mb-2 inline-block">${cleanCitation}</span>`;
                 }).join("");
-                
+
                 citationsHTML = `
                     <div class="mt-4 pt-4 border-t border-on-surface-variant/10">
                         <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Căn cứ pháp lý áp dụng:</p>
@@ -159,13 +156,11 @@ document.addEventListener("DOMContentLoaded", function() {
             scrollToBottom();
         }
 
-        // Xóa hiệu ứng chờ phản hồi
         function removeTypingIndicator() {
             const indicator = document.getElementById("typing-indicator");
             if (indicator) indicator.remove();
         }
 
-        // Tự động cuộn xuống đáy khung chat
         function scrollToBottom() {
             chatContainer.scrollTo({
                 top: chatContainer.scrollHeight + 100,
@@ -173,13 +168,11 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
 
-        // Hàm thực hiện gửi dữ liệu lên Backend RAG
         async function sendMessage() {
             const question = chatInput.value.trim();
             if (!question || isSending) return;
 
             try {
-                // Khóa luồng và vô hiệu hóa UI tạm thời
                 isSending = true;
                 sendButton.disabled = true;
                 chatInput.disabled = true;
@@ -187,14 +180,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 addUserMessage(question);
                 chatInput.value = "";
                 showTypingIndicator();
-                
+
                 const token = localStorage.getItem("access_token") || localStorage.getItem("token");
 
-                const response = await fetch("http://127.0.0.1:8000/api/chat", {
+                const response = await fetch(`${API_BASE}/api/chat`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": token ? `Bearer ${token}` : "" 
+                        "Authorization": token ? `Bearer ${token}` : ""
                     },
                     body: JSON.stringify({ question: question })
                 });
@@ -211,7 +204,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 removeTypingIndicator();
                 addAIMessage(data.answer, data.citations);
 
-                // Kích hoạt làm mới danh sách lịch sử sau khi gửi tin nhắn mới
                 if (typeof fetchChatHistory === "function") {
                     fetchChatHistory();
                 }
@@ -221,7 +213,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 removeTypingIndicator();
                 addAIMessage("Xin lỗi, hệ thống đang bận hoặc mất kết nối. Vui lòng thử lại sau.", []);
             } finally {
-                // Mở khóa luồng và kích hoạt lại UI, tự động đưa con trỏ vào ô nhập liệu
                 isSending = false;
                 sendButton.disabled = false;
                 chatInput.disabled = false;
@@ -229,15 +220,12 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
 
-        // 🔥 ĐẶC TRỊ RAG RACE CONDITION: BỘ BA KHÓA CHỐNG TẢI LẠI TRANG
-        
-        // Lớp khóa 1: Chặn trực tiếp hành vi click chuột trên Button gửi tin
+        // BỘ BA KHÓA CHỐNG TẢI LẠI TRANG
         sendButton.addEventListener("click", function(event) {
             event.preventDefault();
             sendMessage();
         });
 
-        // Lớp khóa 2: Truy vết ngược lên trên để khóa chặn hành vi submit của thẻ <form> bao quanh (nếu có)
         const chatForm = sendButton.closest("form");
         if (chatForm) {
             chatForm.addEventListener("submit", function(event) {
@@ -246,10 +234,9 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
 
-        // Lớp khóa 3: Chặn sự kiện bấm phím Enter trong Textarea để không kích hoạt submit nhầm của form
         chatInput.addEventListener("keydown", function(event) {
             if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault(); // Ngăn việc xuống dòng bừa bãi và chặn kích hoạt submit ngầm
+                event.preventDefault();
                 sendMessage();
             }
         });
@@ -262,7 +249,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (registerForm) {
         registerForm.addEventListener("submit", async function(event) {
-            event.preventDefault(); 
+            event.preventDefault();
 
             const hoten = document.getElementById("hoten").value.trim();
             const email = document.getElementById("email").value.trim();
@@ -280,7 +267,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             try {
-                const response = await fetch("http://127.0.0.1:8000/api/register", {
+                const response = await fetch(`${API_BASE}/api/register`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -315,16 +302,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (forgotPasswordForm) {
         forgotPasswordForm.addEventListener("submit", async function(event) {
-            event.preventDefault(); 
+            event.preventDefault();
 
             const email = document.getElementById("email").value.trim();
             const messageBox = document.getElementById("forgot-message");
-            
+
             messageBox.style.display = "none";
-            messageBox.className = "text-sm font-medium text-center p-4 rounded-lg border"; 
+            messageBox.className = "text-sm font-medium text-center p-4 rounded-lg border";
 
             try {
-                const response = await fetch("http://127.0.0.1:8000/api/forgot-password", {
+                const response = await fetch(`${API_BASE}/api/forgot-password`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ Email: email })
@@ -336,7 +323,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     messageBox.innerHTML = `<strong>${data.message}</strong><br>Hệ thống sẽ chuyển về trang đăng nhập sau 3 giây...`;
                     messageBox.classList.add("bg-green-50", "text-green-700", "border-green-200");
                     messageBox.style.display = "block";
-                    
+
                     setTimeout(() => {
                         window.location.href = "login.html";
                     }, 3000);
@@ -355,7 +342,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ========================================================
-    // PHẦN 5: LOGIC MENU NGƯỜI DÙNG & HỒ SƠ (TỐI ƯU HÓA)
+    // PHẦN 5: LOGIC MENU NGƯỜI DÙNG & HỒ SƠ
     // ========================================================
     const userMenuTrigger = document.getElementById("user-menu-trigger");
     const userDropdown = document.getElementById("user-dropdown");
@@ -369,16 +356,15 @@ document.addEventListener("DOMContentLoaded", function() {
     const sidebarAvatar = document.getElementById("sidebar-avatar");
 
     let currentBase64Avatar = null;
-    let currentUsername = localStorage.getItem("username"); // Lấy username đang login
+    let currentUsername = localStorage.getItem("username");
 
-    // 1. Ẩn/Hiện Dropdown cá nhân
     if (userMenuTrigger && userDropdown) {
         userMenuTrigger.addEventListener("click", function(e) {
             if (!userDropdown.contains(e.target)) {
                 userDropdown.classList.toggle("hidden");
             }
         });
-        
+
         document.addEventListener("click", function(e) {
             if (!userMenuTrigger.contains(e.target)) {
                 userDropdown.classList.add("hidden");
@@ -386,21 +372,19 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // 2. Xử lý Đăng xuất
     if (btnLogout) {
         btnLogout.addEventListener("click", function() {
-            localStorage.clear(); 
+            localStorage.clear();
             window.location.href = "login.html";
         });
     }
 
-    // 3. Mở form Hồ sơ và load dữ liệu từ API bất đồng bộ
     if (btnOpenProfile) {
         btnOpenProfile.addEventListener("click", async function() {
             currentUsername = localStorage.getItem("username");
-            
+
             if (!currentUsername) {
-                alert("Phiên đăng nhập không hợp lệ hoặc thiếu dữ liệu, vui lòng đăng nhập lại!");
+                alert("Phiên đăng nhập không hợp lệ, vui lòng đăng nhập lại!");
                 window.location.href = "login.html";
                 return;
             }
@@ -408,10 +392,10 @@ document.addEventListener("DOMContentLoaded", function() {
             userDropdown.classList.add("hidden");
             profileModal.classList.remove("hidden");
             profileModal.classList.add("flex");
-            
+
             try {
-                const res = await fetch("http://127.0.0.1:8000/api/profile/get", {
-                    method: "POST", 
+                const res = await fetch(`${API_BASE}/api/profile/get`, {
+                    method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ TenDangNhap: currentUsername })
                 });
@@ -419,9 +403,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (res.ok) {
                     const inputHoTen = document.getElementById("profile-hoten");
                     const inputUserName = document.getElementById("profile-username");
-                    
-                    if(inputHoTen) inputHoTen.value = data.ho_ten;
-                    if(inputUserName) inputUserName.value = data.ten_dang_nhap;
+
+                    if (inputHoTen) inputHoTen.value = data.ho_ten;
+                    if (inputUserName) inputUserName.value = data.ten_dang_nhap;
 
                     if (data.avatar) {
                         previewAvatar.src = data.avatar;
@@ -432,7 +416,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else {
                     alert("Không thể tải thông tin hồ sơ: " + (data.detail || ""));
                 }
-            } catch (error) { 
+            } catch (error) {
                 console.error("Lỗi lấy hồ sơ:", error);
                 alert("Không thể tải thông tin hồ sơ!");
             }
@@ -443,7 +427,6 @@ document.addEventListener("DOMContentLoaded", function() {
         btnCloseProfile.addEventListener("click", () => profileModal.classList.add("hidden"));
     }
 
-    // 4. Xử lý khi chọn ảnh đại diện mới (Chuyển sang định dạng Base64)
     if (avatarUpload) {
         avatarUpload.addEventListener("change", function(e) {
             const file = e.target.files[0];
@@ -451,14 +434,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     previewAvatar.src = event.target.result;
-                    currentBase64Avatar = event.target.result; 
+                    currentBase64Avatar = event.target.result;
                 };
                 reader.readAsDataURL(file);
             }
         });
     }
 
-    // 5. Submit form cập nhật hồ sơ người dùng
     if (profileForm) {
         profileForm.addEventListener("submit", async function(e) {
             e.preventDefault();
@@ -469,8 +451,8 @@ document.addEventListener("DOMContentLoaded", function() {
             msgBox.style.display = "none";
 
             try {
-                const res = await fetch("http://127.0.0.1:8000/api/profile/update", {
-                    method: "PUT", 
+                const res = await fetch(`${API_BASE}/api/profile/update`, {
+                    method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         TenDangNhapCu: currentUsername,
@@ -480,29 +462,27 @@ document.addEventListener("DOMContentLoaded", function() {
                     })
                 });
                 const data = await res.json();
-                
+
                 if (res.ok) {
                     msgBox.innerHTML = "Lưu thành công!";
                     msgBox.className = "text-xs text-center font-bold text-green-600 block py-2";
-                    
-                    // Cập nhật lại dữ liệu bộ nhớ tạm ở Client
+
                     localStorage.setItem("user_fullname", newHoten);
                     localStorage.setItem("username", newUsername);
-                    
-                    // Nâng cấp: Lưu token mới nếu backend sinh lại chuỗi JWT theo Username mới
+
                     if (data.access_token) {
                         localStorage.setItem("access_token", data.access_token);
                     }
-                    
-                    currentUsername = newUsername; 
-                    
+
+                    currentUsername = newUsername;
+
                     if (document.getElementById("display-username")) {
                         document.getElementById("display-username").textContent = newHoten;
                     }
                     if (currentBase64Avatar && sidebarAvatar) {
                         sidebarAvatar.src = currentBase64Avatar;
                     }
-                    
+
                     setTimeout(() => profileModal.classList.add("hidden"), 1500);
                 } else {
                     msgBox.innerHTML = data.detail || "Lỗi cập nhật!";
@@ -516,11 +496,11 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ========================================================
-    // PHẦN 6: TỰ ĐỘNG TẢI AVATAR BAN ĐẦU KHI KHỞI CHẠY TRANG CHAT
+    // PHẦN 6: TỰ ĐỘNG TẢI AVATAR KHI KHỞI CHẠY TRANG CHAT
     // ========================================================
     if (currentUsername && sidebarAvatar) {
-        fetch("http://127.0.0.1:8000/api/profile/get", {
-            method: "POST", 
+        fetch(`${API_BASE}/api/profile/get`, {
+            method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ TenDangNhap: currentUsername })
         }).then(res => res.json()).then(data => {
@@ -530,43 +510,38 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ========================================================
-    // PHẦN 7: LOGIC TẢI VÀ HIỂN THỊ LỊCH SỬ TƯ VẤN (chat.html) - ĐÃ SỬA LỖI ĐỔ DỮ LIỆU
+    // PHẦN 7: LOGIC TẢI VÀ HIỂN THỊ LỊCH SỬ TƯ VẤN
     // ========================================================
     const historyListContainer = document.getElementById("history-list") || document.querySelector(".history-list");
-    let cachedHistoryItems = []; // Bộ nhớ đệm lưu trữ danh sách phiên làm việc
-    
+    let cachedHistoryItems = [];
+
     if (historyListContainer && chatContainer) {
-        
-        // Hàm lấy danh sách lịch sử hội thoại từ API Backend
+
         async function fetchChatHistory() {
             const token = localStorage.getItem("access_token") || localStorage.getItem("token");
             const username = localStorage.getItem("username");
             if (!username) return;
 
             try {
-                // ĐA DẠNG HÓA PAYLOAD BODY phòng trường hợp backend thay đổi key cấu trúc lọc
-                const response = await fetch("http://127.0.0.1:8000/api/chat/history", {
-                    method: "POST", 
+                const response = await fetch(`${API_BASE}/api/chat/history`, {
+                    method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": token ? `Bearer ${token}` : ""
                     },
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         TenDangNhap: username,
                         username: username,
-                        user_id: username 
+                        user_id: username
                     })
                 });
 
                 if (response.ok) {
-                    const historyData = await response.json(); 
-                    console.log("=== [app.js] DỮ LIỆU LỊCH SỬ CHAT TỪ BACKEND ===", historyData);
-                    
-                    // SỬA LỖI: Trích xuất mảng một cách an toàn kể cả khi bị bọc bởi Object từ FastAPI
-                    const items = Array.isArray(historyData) ? historyData : 
+                    const historyData = await response.json();
+                    const items = Array.isArray(historyData) ? historyData :
                                   (historyData.history || historyData.data || historyData.conversations || historyData.sessions || historyData.results || []);
-                    
-                    cachedHistoryItems = items; // Lưu vào cache client để dùng cho việc tải phiên nhanh
+
+                    cachedHistoryItems = items;
                     renderHistoryList(items);
                 }
             } catch (error) {
@@ -574,9 +549,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
 
-        // Hàm render danh sách các cuộc hội thoại cũ lên khu vực Sidebar lịch sử
         function renderHistoryList(items) {
-            historyListContainer.innerHTML = ""; 
+            historyListContainer.innerHTML = "";
 
             if (!items || items.length === 0) {
                 historyListContainer.innerHTML = `
@@ -586,14 +560,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 return;
             }
 
-            // Duyệt danh sách các phiên tư vấn trong cơ sở dữ liệu gửi về
             items.forEach((session, index) => {
-                // ĐÃ SỬA: Đọc thêm field tieu_de và TieuDe (tên field tiếng Việt từ SQLAlchemy)
-                const title = session.tieu_de || session.TieuDe 
-                           || session.title || session.chat_title 
+                const title = session.tieu_de || session.TieuDe
+                           || session.title || session.chat_title
                            || session.summary || session.question || session.CauHoi
                            || `Phiên tư vấn số #${index + 1}`;
-                // ĐÃ SỬA: Đọc thêm thoi_gian và ThoiGian
                 const timeStr = session.thoi_gian || session.ThoiGian || session.created_at || session.timestamp;
                 const displayTime = timeStr ? new Date(timeStr).toLocaleDateString('vi-VN') : "Gần đây";
                 const id = session.id || session.session_id || session.ma_phien || session.MaPhien || session._id || index;
@@ -610,7 +581,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 historyListContainer.insertAdjacentHTML("beforeend", itemHTML);
             });
 
-            // Đăng ký sự kiện Click chọn phiên lịch sử để tải lại lên màn hình Chat chính
             const historyElements = historyListContainer.querySelectorAll(".history-item");
             historyElements.forEach(el => {
                 el.addEventListener("click", function() {
@@ -620,17 +590,14 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
 
-        // Hàm Rendering bóc tách tin nhắn cũ render lên khung màn hình chat chính
         function loadSelectedHistoryDetail(chatSession) {
             if (!chatSession) return;
-            chatContainer.innerHTML = ""; // Xóa sạch nội dung hiển thị hiện tại
-            console.log("=== CHI TIẾT PHIÊN LÀM VIỆC ĐƯỢC TẢI ===", chatSession);
+            chatContainer.innerHTML = "";
 
             const messages = chatSession.messages || chatSession.history || chatSession.detail || (Array.isArray(chatSession) ? chatSession : [chatSession]);
 
             if (Array.isArray(messages)) {
                 messages.forEach(msg => {
-                    // 1. Kết xuất câu hỏi của Người dùng (User Message)
                     if (msg.question || msg.role === "user" || msg.is_user === true) {
                         const userText = msg.question || msg.content || msg.message || msg.text;
                         if (userText) {
@@ -648,19 +615,18 @@ document.addEventListener("DOMContentLoaded", function() {
                         }
                     }
 
-                    // 2. Kết xuất câu trả lời kèm căn cứ pháp lý từ AI (AI Message)
                     if (msg.answer || msg.role === "assistant" || msg.role === "ai" || msg.role === "model") {
                         const aiText = msg.answer || msg.content || msg.reply || msg.text;
                         if (aiText) {
                             const citations = msg.citations || msg.sources || [];
-                            
+
                             let citationsHTML = "";
                             if (citations && citations.length > 0) {
                                 const tags = citations.map(c => {
                                     let cleanCitation = c.replace(/(Điều\s*)+/gi, "Điều ");
                                     return `<span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-bold mr-2 mb-2 inline-block">${cleanCitation}</span>`;
                                 }).join("");
-                                
+
                                 citationsHTML = `
                                     <div class="mt-4 pt-4 border-t border-on-surface-variant/10">
                                         <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Căn cứ pháp lý áp dụng:</p>
@@ -668,7 +634,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                     </div>
                                 `;
                             }
-                            
+
                             const formattedAnswer = aiText.replace(/\n/g, '<br>');
                             const aiHTML = `
                                 <div class="flex gap-5 items-start mb-10">
@@ -689,16 +655,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
             }
 
-            // Tự động kéo thanh cuộn xuống cuối sau khi tái dựng hội thoại lịch sử
             chatContainer.scrollTo({
                 top: chatContainer.scrollHeight + 100,
                 behavior: 'smooth'
             });
         }
 
-        // Tạo cầu nối các hàm toàn cục nhằm kích hoạt tải/chọn lịch sử đồng bộ từ các file HTML ngoại vi ngoài app.js
         window.fetchChatHistory = fetchChatHistory;
-        
+
         window.loadChatSession = function(sessionId) {
             const found = cachedHistoryItems.find(item => {
                 const id = item.id || item.session_id || item._id;
@@ -707,11 +671,10 @@ document.addEventListener("DOMContentLoaded", function() {
             if (found) {
                 loadSelectedHistoryDetail(found);
             } else {
-                console.log("Không tìm thấy dữ liệu trùng khớp với Session ID trong bộ nhớ tạm:", sessionId);
+                console.log("Không tìm thấy dữ liệu trùng khớp với Session ID:", sessionId);
             }
         };
 
-        // Kích hoạt chạy tự động lấy danh sách lịch sử khi tải giao diện trang chat xong
         fetchChatHistory();
     }
 });

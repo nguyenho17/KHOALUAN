@@ -218,6 +218,7 @@
         //         để backend nhận diện đúng người dùng đang đăng nhập
         // ============================================================
         document.addEventListener("DOMContentLoaded", function() {
+            const API_BASE = window.location.origin;
             const historyList = document.getElementById("history-list");
             
             if (historyList) {
@@ -242,7 +243,7 @@
 
                 // Tiến hành Fetch dữ liệu từ API POST
                 // ĐÃ SỬA: Dùng URL tuyệt đối + gửi đầy đủ token và username
-                fetch("http://127.0.0.1:8000/api/chat/history", {
+                fetch(`${API_BASE}/api/chat/history`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

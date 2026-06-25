@@ -94,6 +94,7 @@
 <script>
     // XỬ LÝ LOGIC UI (Không cần chuyển sang app.js, viết thẳng vào đây cho gọn luồng)
     document.addEventListener("DOMContentLoaded", function() {
+        const API_BASE = window.location.origin;
         const step1Form = document.getElementById("step1Form");
         const step2Form = document.getElementById("step2Form");
         const step3Form = document.getElementById("step3Form");
@@ -117,7 +118,7 @@
             btn.innerHTML = "Đang gửi..."; btn.disabled = true; msgBox.style.display = "none";
 
             try {
-                const res = await fetch("http://127.0.0.1:8000/api/forgot-password/send-otp", {
+                const res = await fetch(`${API_BASE}/api/forgot-password/send-otp`, {
                     method: "POST", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ Email: userEmail })
                 });
@@ -141,7 +142,7 @@
             msgBox.style.display = "none";
 
             try {
-                const res = await fetch("http://127.0.0.1:8000/api/forgot-password/verify-otp", {
+                const res = await fetch(`${API_BASE}/api/forgot-password/verify-otp`, {
                     method: "POST", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ Email: userEmail, OTP: verifiedOTP })
                 });
@@ -167,7 +168,7 @@
             if (pw1 !== pw2) { showMessage("Mật khẩu xác nhận không khớp!"); return; }
 
             try {
-                const res = await fetch("http://127.0.0.1:8000/api/forgot-password/reset", {
+                const res = await fetch(`${API_BASE}/api/forgot-password/reset`, {
                     method: "POST", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ Email: userEmail, OTP: verifiedOTP, NewPassword: pw1 })
                 });

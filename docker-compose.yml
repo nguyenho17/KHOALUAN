@@ -1,0 +1,48 @@
+# ==============================================================
+# docker-compose.yml — Chạy local để kiểm tra trước khi deploy
+# Sử dụng: docker-compose up --build
+# ==============================================================
+
+version: "3.9"
+
+services:
+  chatbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lexrag_chatbot
+    ports:
+      - "7860:7860"
+    environment:
+      # ── DATABASE ──────────────────────────────────────────────
+      # Option 1: PostgreSQL (Neon.tech) — Khuyến nghị cho production
+      - DATABASE_URL=${DATABASE_URL:-sqlite:////app/backend/data/chatbot.db}
+      
+      # ── OPENROUTER API KEYS ───────────────────────────────────
+      - OPENROUTER_API_KEY_28=${OPENROUTER_API_KEY_28:-}
+      - OPENROUTER_API_KEY_29=${OPENROUTER_API_KEY_29:-}
+      - OPENROUTER_API_KEY_30=${OPENROUTER_API_KEY_30:-}
+      - OPENROUTER_API_KEY_31=${OPENROUTER_API_KEY_31:-}
+      
+      # ── JWT ───────────────────────────────────────────────────
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-khoaluan_chatbot_bi_mat_123}
+      
+      # ── PORT ──────────────────────────────────────────────────
+      - PORT=7860
+
+    volumes:
+      # Mount thư mục data để FAISS index được lưu giữa các lần chạy
+      - faiss_data:/app/backend/data
+
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7860/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  faiss_data:
+    driver: local

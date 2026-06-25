@@ -265,6 +265,7 @@
                 document.documentElement.classList.remove("dark");
             }
 
+            const API_BASE = window.location.origin;
             const accessToken = localStorage.getItem("access_token");
             const userInfoStr = localStorage.getItem("user_info");
             
@@ -359,7 +360,7 @@
 
             async function fetchAndRenderDashboardStats() {
                 try {
-                    const response = await fetch("http://127.0.0.1:8000/api/admin/dashboard-stats", {
+                    const response = await fetch(`${API_BASE}/api/admin/dashboard-stats`, {
                         method: "GET",
                         headers: {
                             "Authorization": `Bearer ${accessToken}`,

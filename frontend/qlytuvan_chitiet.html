@@ -306,7 +306,7 @@
 
             async function loadConversationDetail() {
                 try {
-                    const response = await fetch(`http://127.0.0.1:8000/api/admin/conversations/${chatId}`, {
+                    const response = await fetch(`${window.location.origin}/api/admin/conversations/${chatId}`, {
                         method: "GET",
                         headers: {
                             "Authorization": `Bearer ${accessToken}`,
@@ -371,7 +371,7 @@
             btnSave?.addEventListener("click", async function () {
                 try {
                     btnSave.disabled = true; btnSave.textContent = "Đang ghi dữ liệu...";
-                    const reviewResponse = await fetch(`http://127.0.0.1:8000/api/admin/conversations/${chatId}/review`, {
+                    const reviewResponse = await fetch(`${window.location.origin}/api/admin/conversations/${chatId}/review`, {
                         method: "PUT",
                         headers: { "Authorization": `Bearer ${accessToken}`, "Content-Type": "application/json" },
                         body: JSON.stringify({

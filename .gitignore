@@ -27,3 +27,8 @@ faiss_index/
 # Cấu hình IDE
 .vscode/
 .idea/
+
+# Temporary files
+~$*
+*.tmp
+temp/
