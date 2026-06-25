@@ -14,7 +14,7 @@ short_description: ChatBot tư vấn Luật Hôn nhân và Gia đình Việt Nam
 
 # ⚖️ ChatBot AI – Luật Hôn Nhân và Gia Đình Việt Nam
 
-### **LexRAG++ · Retrieval-Augmented Generation cho Tư Vấn Pháp Lý**
+### **RAG++ · Retrieval-Augmented Generation cho Tư Vấn Pháp Lý**
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python)](https://python.org/)
