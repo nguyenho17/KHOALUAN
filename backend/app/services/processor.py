@@ -6,6 +6,47 @@ from app.services.generation import client, rotator
 # Sử dụng mô hình meta-llama/llama-3.3-70b-instruct để phân loại và viết lại câu hỏi tốc độ cao
 MODEL_NAME = "meta-llama/llama-3.3-70b-instruct"
 
+# =====================================================================
+# PHÁT HIỆN LỜI CHÀO / SMALL TALK (Không cần gọi LLM, tiết kiệm API)
+# =====================================================================
+_GREETING_PATTERNS = re.compile(
+    r"^("
+    # Lời chào tiếng Việt
+    r"xin\s*chào|chào\s*(bạn|anh|chị|em|mọi\s*người|buổi\s*(sáng|trưa|chiều|tối))|"
+    r"hi|hello|hey|helo|hê\s*l+ô|"
+    r"alo|ờ|ừ|uh|"
+    r"good\s*(morning|afternoon|evening|night)|"
+    r"chào\s*buổi|buổi\s*(sáng|trưa|chiều|tối)\s*(anh|chị|bạn|em)?|"
+    # Hỏi thăm
+    r"bạn\s*(có\s*)?(khỏe|ổn)\s*(không|ko|k)?|"
+    r"(bạn|anh|chị)\s*(là|tên)\s*(gì|ai|nào)?|"
+    r"how\s+are\s+you|what'?s?\s+up|"
+    # Bắt đầu cuộc trò chuyện
+    r"xin\s*hỏi$|cho\s*hỏi$|"
+    r"cảm\s*ơn|thank(s|\s+you)?|cám\s*ơn|"
+    r"ok(ay)?$|được\s*rồi$|hiểu\s*rồi$|"
+    r"tạm\s*biệt|bye|goodbye"
+    r")[\s!?.]*$",
+    re.IGNORECASE | re.UNICODE
+)
+
+def is_greeting(query: str) -> bool:
+    """
+    Phát hiện nhanh lời chào hỏi và small talk bằng regex thuần Python.
+    Trả về True nếu là lời chào (không cần gọi LLM).
+    """
+    if not query or not query.strip():
+        return False
+    text = query.strip()
+    # Nếu quá ngắn (≤ 3 từ) và không chứa từ khóa pháp lý → có thể là lời chào
+    if len(text.split()) <= 3 and _GREETING_PATTERNS.search(text):
+        return True
+    # Kiểm tra toàn chuỗi với pattern
+    if _GREETING_PATTERNS.match(text):
+        return True
+    return False
+
+
 def is_out_of_scope(query: str) -> bool:
     """
     Kiểm tra xem câu hỏi có thuộc phạm vi Luật Hôn nhân và Gia đình Việt Nam hay không.

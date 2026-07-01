@@ -18,7 +18,7 @@ from app.db.models import TaiKhoan, NguoiDung, PhienChat, LichSuChat
 # Import RAG Services
 from app.services.retrieval import retrieval_service
 from app.services.generation import generation_service
-from app.services.processor import is_out_of_scope, reformulate_query
+from app.services.processor import is_out_of_scope, reformulate_query, is_greeting
 
 # Import Security
 from app.services.security import create_access_token, hash_password, verify_password, SECRET_KEY
@@ -496,8 +496,21 @@ async def chat_endpoint(
             except JWTError:
                 current_user = None 
 
+        # RAG++: 0. Phát hiện lời chào / small talk (ưu tiên xử lý trước, không tốn API call)
+        if is_greeting(request.question):
+            answer = (
+                "Xin chào! Tôi là Hệ thống Luật sư AI chuyên về Luật Hôn nhân và Gia đình Việt Nam. "
+                "Tôi có thể hỗ trợ bạn tra cứu và tư vấn các vấn đề pháp lý như:\n\n"
+                "• 💍 Kết hôn: điều kiện, thủ tục, kết hôn có yếu tố nước ngoài\n"
+                "• 📝 Ly hôn: thuận tình / đơn phương, thời gian, thủ tục\n"
+                "• 🏠 Tài sản: chia tài sản chung/riêng, quyền sử dụng đất, thừa kế\n"
+                "• 👶 Quyền nuôi con: ai được nuôi, thăm nom, cấp dưỡng\n"
+                "• 📜 Hợp đồng hôn nhân: thỏa thuận tài sản trước hôn nhân\n\n"
+                "Bạn đang cần tư vấn về vấn đề gì? Hãy mô tả tình huống của bạn, tôi sẽ tra cứu ngay!"
+            )
+            unique_citations = []
         # RAG++: 1. Kiểm tra câu hỏi ngoài phạm vi (Out-of-scope Check)
-        if is_out_of_scope(request.question):
+        elif is_out_of_scope(request.question):
             answer = "Xin lỗi, tôi là trợ lý AI chuyên biệt về Luật Hôn nhân và Gia đình Việt Nam. Câu hỏi của bạn nằm ngoài phạm vi tư vấn của hệ thống này. Vui lòng đặt các câu hỏi liên quan đến kết hôn, ly hôn, quyền nuôi con, cấp dưỡng, chia tài sản chung/riêng..."
             unique_citations = []
         else:
