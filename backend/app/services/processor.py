@@ -1,7 +1,7 @@
 import os
 import re
 import time
-from app.services.generation import client, rotator
+from app.services.generation import client, rotator, _KEY_ERRORS, _TRANSIENT_ERRORS, MAX_TRANSIENT_RETRIES
 
 # Sử dụng mô hình meta-llama/llama-3.3-70b-instruct để phân loại và viết lại câu hỏi tốc độ cao
 MODEL_NAME = "meta-llama/llama-3.3-70b-instruct"
@@ -38,7 +38,7 @@ def is_greeting(query: str) -> bool:
     if not query or not query.strip():
         return False
     text = query.strip()
-    # Nếu quá ngắn (≤ 3 từ) và không chứa từ khóa pháp lý → có thể là lời chào
+    # Nếu quá ngắn (≤ 3 từ) → kiểm tra với pattern
     if len(text.split()) <= 3 and _GREETING_PATTERNS.search(text):
         return True
     # Kiểm tra toàn chuỗi với pattern
@@ -68,7 +68,8 @@ def is_out_of_scope(query: str) -> bool:
     Yêu cầu định dạng: Chỉ trả về duy nhất một từ "IN_SCOPE" hoặc "OUT_OF_SCOPE". Tuyệt đối không giải thích hay thêm bớt bất kỳ từ nào khác.
     """
     
-    # Sử dụng bộ xoay key từ generation service để gọi API
+    transient_retries = 0
+
     while rotator.get_total_keys() > 0:
         try:
             current_key = rotator.get_current_key()
@@ -83,7 +84,10 @@ def is_out_of_scope(query: str) -> bool:
                 max_tokens=10
             )
             
-            res_text = response.choices[0].message.content.strip().upper()
+            res_text = response.choices[0].message.content
+            if not res_text or not res_text.strip():
+                raise ValueError("empty response from API")
+            res_text = res_text.strip().upper()
             print(f"👁️ [Out-of-scope Classifier] Phản hồi từ LLM: '{res_text}'")
             if "OUT_OF_SCOPE" in res_text:
                 return True
@@ -91,16 +95,36 @@ def is_out_of_scope(query: str) -> bool:
             
         except Exception as e:
             err_str = str(e).lower()
-            if any(code in err_str for code in ["401", "402", "429", "credit", "rate_limit", "payment"]):
+
+            # 1️⃣ Lỗi key hết hạn / quota → xoay key
+            if any(code in err_str for code in _KEY_ERRORS):
                 success = rotator.handle_expired_key()
                 if not success:
                     break
                 time.sleep(1.0)
+                transient_retries = 0
                 continue
+
+            # 2️⃣ Lỗi tạm thời (JSON parse, timeout, connection) → retry với delay tăng dần
+            elif any(code in err_str for code in _TRANSIENT_ERRORS):
+                transient_retries += 1
+                wait_sec = transient_retries * 2.0
+                print(f"⚠️ [OOS Classifier] Lỗi tạm thời lần {transient_retries}/{MAX_TRANSIENT_RETRIES}: {str(e)[:100]}")
+                print(f"   → Retry sau {wait_sec:.0f}s...")
+                if transient_retries >= MAX_TRANSIENT_RETRIES:
+                    print("❌ [OOS Classifier] Đã retry tối đa, bỏ qua kiểm tra scope.")
+                    break
+                time.sleep(wait_sec)
+                continue
+
+            # 3️⃣ Lỗi không xác định
             else:
-                print(f"⚠️ Lỗi kết nối OpenRouter khi phân loại phạm vi: {e}")
+                print(f"⚠️ [OOS Classifier] Lỗi không xác định: {e}")
                 break
-    return False # Mặc định cho phép đi tiếp nếu lỗi API để tránh chặn oan câu hỏi người dùng
+
+    # Mặc định IN_SCOPE để tránh chặn oan câu hỏi người dùng khi API lỗi
+    return False
+
 
 def reformulate_query(query: str) -> str:
     """
@@ -127,6 +151,8 @@ def reformulate_query(query: str) -> str:
     Yêu cầu: Chỉ trả về câu truy vấn được viết lại cuối cùng. Tuyệt đối không thêm lời dẫn, không giải thích gì thêm.
     """
     
+    transient_retries = 0
+
     while rotator.get_total_keys() > 0:
         try:
             current_key = rotator.get_current_key()
@@ -141,20 +167,42 @@ def reformulate_query(query: str) -> str:
                 max_tokens=60
             )
             
-            res_text = response.choices[0].message.content.strip()
+            res_text = response.choices[0].message.content
+            if not res_text or not res_text.strip():
+                raise ValueError("empty response from API")
+            res_text = res_text.strip()
             # Loại bỏ dấu ngoặc kép nếu LLM tự động thêm vào
             res_text = re.sub(r'^["\']|["\']$', '', res_text)
             return res_text
             
         except Exception as e:
             err_str = str(e).lower()
-            if any(code in err_str for code in ["401", "402", "429", "credit", "rate_limit", "payment"]):
+
+            # 1️⃣ Lỗi key hết hạn / quota → xoay key
+            if any(code in err_str for code in _KEY_ERRORS):
                 success = rotator.handle_expired_key()
                 if not success:
                     break
                 time.sleep(1.0)
+                transient_retries = 0
                 continue
+
+            # 2️⃣ Lỗi tạm thời → retry với delay tăng dần
+            elif any(code in err_str for code in _TRANSIENT_ERRORS):
+                transient_retries += 1
+                wait_sec = transient_retries * 2.0
+                print(f"⚠️ [Reformulate] Lỗi tạm thời lần {transient_retries}/{MAX_TRANSIENT_RETRIES}: {str(e)[:100]}")
+                print(f"   → Retry sau {wait_sec:.0f}s...")
+                if transient_retries >= MAX_TRANSIENT_RETRIES:
+                    print("❌ [Reformulate] Đã retry tối đa, dùng câu hỏi gốc.")
+                    break
+                time.sleep(wait_sec)
+                continue
+
+            # 3️⃣ Lỗi không xác định
             else:
-                print(f"⚠️ Lỗi kết nối OpenRouter khi viết lại câu hỏi: {e}")
+                print(f"⚠️ [Reformulate] Lỗi không xác định: {e}")
                 break
-    return query # Mặc định trả về câu hỏi gốc nếu lỗi API
+
+    # Mặc định trả về câu hỏi gốc nếu lỗi API
+    return query

@@ -110,6 +110,31 @@ client = OpenAI(
     api_key=rotator.get_current_key() or "EMPTY_KEY_FALLBACK",
 )
 
+# =====================================================================
+# NHÓM LỖI DÙNG CHUNG ĐỂ PHÂN LOẠI HÀNH VI RETRY
+# =====================================================================
+# Lỗi key hết hạn / quota → xoay key
+_KEY_ERRORS = ("401", "402", "429", "credit", "rate_limit", "payment", "quota")
+
+# Lỗi tạm thời từ server → retry tự động (KHÔNG xoay key vội)
+_TRANSIENT_ERRORS = (
+    "expecting value",      # JSONDecodeError — server trả HTML thay vì JSON
+    "json",                 # Các lỗi JSON parse khác
+    "timeout",              # Request timeout
+    "timed out",
+    "connection",           # Connection reset/refused
+    "remotedisconnected",
+    "connectionreset",
+    "read timeout",
+    "502", "503", "504",    # Bad Gateway / Service Unavailable / Gateway Timeout
+    "service unavailable",
+    "overloaded",
+    "empty",                # Empty response body
+)
+
+MAX_TRANSIENT_RETRIES = 3  # Số lần retry tối đa cho lỗi tạm thời trước khi chuyển key
+
+
 class GenerationService:
     def __init__(self):
         # 🛠️ Chuyển đổi sang mô hình Llama 3.3 70B Instruct tốc độ cao và lập luận đanh thép
@@ -198,15 +223,15 @@ class GenerationService:
         "{question}"
         """
 
-        
-        # 🔄 LUỒNG TỰ ĐỘNG XOAY KEY VÀ RE-TRY TRỰC TIẾP KHI NGƯỜI DÙNG CHAT TRÊN GIAO DIỆN INTERFACE
+        # 🔄 LUỒNG TỰ ĐỘNG XOAY KEY VÀ RE-TRY (phân 3 nhóm lỗi)
+        transient_retries = 0
+
         while rotator.get_total_keys() > 0:
             try:
                 current_key = rotator.get_current_key()
                 if not current_key:
                     return "Hệ thống phản hồi: Hiện tại không tìm thấy API Key khả dụng để xử lý yêu cầu."
                 
-                # Cập nhật chìa khóa mới cho luồng gọi hiện hành
                 client.api_key = current_key
                 
                 response = client.chat.completions.create(
@@ -216,19 +241,43 @@ class GenerationService:
                 )
                 
                 answer = response.choices[0].message.content
+                # Kiểm tra response rỗng
+                if not answer or not answer.strip():
+                    raise ValueError("empty response from API")
                 return answer.replace("*", "").strip()
                 
             except Exception as e:
                 err_str = str(e).lower()
-                # Định vị chính xác nhóm mã lỗi tài khoản (401, 402, 429) để kích hoạt cơ chế xoay key bảo hiểm
-                if any(code in err_str for code in ["401", "402", "429", "credit", "rate_limit", "payment"]):
+
+                # 1️⃣ Lỗi key hết hạn / quota → xoay ngay sang key khác
+                if any(code in err_str for code in _KEY_ERRORS):
+                    print(f"🔑 [Generation] Key hết quota, đang chuyển key mới...")
                     success = rotator.handle_expired_key()
                     if not success:
                         return "Hệ thống phản hồi: Toàn bộ hạn mức API Key dự phòng của dịch vụ đã cạn kiệt. Vui lòng liên hệ quản trị viên."
                     time.sleep(1.0)
-                    continue  # Quay ngược lại đầu vòng lặp để thực thi lại câu hỏi bằng Key mới
+                    transient_retries = 0  # Reset retry count khi đổi key
+                    continue
+
+                # 2️⃣ Lỗi tạm thời (JSON parse / timeout / connection) → retry với delay tăng dần
+                elif any(code in err_str for code in _TRANSIENT_ERRORS):
+                    transient_retries += 1
+                    wait_sec = transient_retries * 2.0  # 2s → 4s → 6s
+                    print(f"⚠️ [Generation] Lỗi tạm thời lần {transient_retries}/{MAX_TRANSIENT_RETRIES}: {str(e)[:100]}")
+                    print(f"   → Retry sau {wait_sec:.0f}s...")
+                    if transient_retries >= MAX_TRANSIENT_RETRIES:
+                        print("❌ [Generation] Đã retry tối đa, thử chuyển key tiếp theo...")
+                        success = rotator.handle_expired_key()
+                        if not success:
+                            return "Hệ thống tạm thời quá tải. Vui lòng thử lại sau vài giây."
+                        transient_retries = 0
+                    time.sleep(wait_sec)
+                    continue
+
+                # 3️⃣ Lỗi không xác định → log và trả thông báo thân thiện (không lộ stack trace)
                 else:
-                    return f"Lỗi hệ thống sinh văn bản (OpenRouter API): {str(e)}"
+                    print(f"❌ [Generation] Lỗi không xác định: {str(e)}")
+                    return "Hệ thống gặp sự cố khi xử lý yêu cầu. Vui lòng thử lại."
                     
         return "Hệ thống phản hồi: Không tìm thấy tài nguyên API thích hợp để phản hồi câu hỏi này."
 
